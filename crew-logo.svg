@@ -8,7 +8,7 @@
   <circle cx="256" cy="256" r="250" fill="#0f5f5a"/>
   <circle cx="256" cy="256" r="236" fill="none" stroke="#f6c343" stroke-width="6"/>
   <g clip-path="url(#c)">
-    <rect x="0" y="0" width="512" height="512" fill="#fff4dc"/>
+    <rect x="0" y="0" width="512" height="512" fill="#cfeaf0"/>
     <!-- sunset stripes -->
     <rect x="0" y="250" width="512" height="26" fill="#f6c343"/>
     <rect x="0" y="282" width="512" height="22" fill="#f29c38"/>
@@ -20,30 +20,29 @@
   <!-- dog -->
   <g stroke="#1b1b1b" stroke-width="7" stroke-linejoin="round" stroke-linecap="round">
     <!-- ears -->
-    <path d="M178 210 C 150 230 140 300 168 330 C 190 318 196 270 196 232 Z" fill="#7a4a2a"/>
-    <path d="M334 210 C 362 230 372 300 344 330 C 322 318 316 270 316 232 Z" fill="#7a4a2a"/>
+    <path d="M178 210 C 150 230 140 300 168 330 C 190 318 196 270 196 232 Z" fill="#e6e2d8"/>
+    <path d="M334 210 C 362 230 372 300 344 330 C 322 318 316 270 316 232 Z" fill="#e6e2d8"/>
     <!-- head -->
-    <path d="M190 220 C 190 175 322 175 322 220 L 330 300 C 330 352 182 352 182 300 Z" fill="#c98a52"/>
+    <path d="M190 220 C 190 175 322 175 322 220 L 330 300 C 330 352 182 352 182 300 Z" fill="#ffffff"/>
     <!-- muzzle -->
-    <ellipse cx="256" cy="318" rx="52" ry="38" fill="#f3dcc0"/>
+    <ellipse cx="256" cy="318" rx="52" ry="38" fill="#f6f4ee"/>
     <!-- scruffy beard -->
-    <path d="M212 330 l10 22 l10 -12 l12 20 l12 -18 l12 20 l12 -20 l10 12 l10 -22" fill="#f3dcc0"/>
+    <path d="M212 330 l10 22 l10 -12 l12 20 l12 -18 l12 20 l12 -20 l10 12 l10 -22" fill="#f6f4ee"/>
     <!-- nose -->
     <path d="M240 298 q16 -10 32 0 q-4 16 -16 18 q-12 -2 -16 -18 Z" fill="#1b1b1b"/>
     <path d="M256 316 v10" fill="none"/>
     <!-- mouth/grin -->
     <path d="M232 326 q24 20 48 0" fill="none"/>
     <!-- tongue -->
-    <path d="M250 334 q6 16 12 0" fill="#e4572e" stroke-width="5"/>
+    <path d="M250 334 q6 16 12 0" fill="#f08aa0" stroke-width="5"/>
   </g>
   <!-- eyes -->
   <circle cx="226" cy="262" r="10" fill="#1b1b1b"/>
   <circle cx="229" cy="259" r="3" fill="#fff"/>
-  <!-- eye patch -->
-  <g stroke="#1b1b1b" stroke-width="6" stroke-linecap="round">
-    <path d="M196 236 L 316 280" fill="none"/>
-    <ellipse cx="288" cy="264" rx="20" ry="17" fill="#1b1b1b"/>
-  </g>
+  <circle cx="286" cy="262" r="10" fill="#1b1b1b"/>
+  <circle cx="289" cy="259" r="3" fill="#fff"/>
+  <!-- scruffy fur tufts -->
+  <path d="M196 236 l-12 10 l14 2 M316 236 l12 10 l-14 2" stroke="#1b1b1b" stroke-width="5" fill="none" stroke-linecap="round"/>
   <!-- captain's cap -->
   <g stroke="#1b1b1b" stroke-width="7" stroke-linejoin="round">
     <path d="M176 214 C 170 160 342 160 336 214 Z" fill="#f7f7f2"/>
@@ -54,7 +53,7 @@
   <!-- bandana -->
   <path d="M196 352 C 230 372 282 372 316 352 L 300 384 L 256 372 L 212 384 Z" fill="#e4572e" stroke="#1b1b1b" stroke-width="6" stroke-linejoin="round"/>
   <!-- lettering -->
-  <text font-family="Fredoka, 'Arial Rounded MT Bold', Arial, sans-serif" font-weight="700" font-size="50" letter-spacing="3" fill="#0f5f5a" stroke="#fff4dc" stroke-width="8" paint-order="stroke">
+  <text font-family="Fredoka, 'Arial Rounded MT Bold', Arial, sans-serif" font-weight="700" font-size="50" letter-spacing="3" fill="#0f5f5a" stroke="#cfeaf0" stroke-width="8" paint-order="stroke">
     <textPath href="#top" startOffset="50%" text-anchor="middle">CHARLIE'S CREW</textPath>
   </text>
   <text font-family="Fredoka, 'Arial Rounded MT Bold', Arial, sans-serif" font-weight="700" font-size="30" letter-spacing="6" fill="#fff4dc">
