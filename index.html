@@ -454,7 +454,10 @@ function renderRevFeed(){if(!$("revFeed"))return;if(document.activeElement&&docu
 document.addEventListener("click",async e=>{const ap=e.target.closest("[data-rapp]");if(ap&&db){const id=ap.dataset.rapp,t=(document.querySelector(`[data-rdraft="${CSS.escape(id)}"]`)||{}).value;await write(db.doc("reviews/"+id),"update",{draft:t,approved:true,approvedBy:me||"",approvedAt:new Date().toISOString()});status("Approved");return}
  const cp=e.target.closest("[data-rcopy]");if(cp){const r=RFEED.find(x=>x.id===cp.dataset.rcopy);try{await navigator.clipboard.writeText(r.draft);status("Copied. Paste it on "+r.site)}catch(err){status("Couldn't copy, select the text instead")}return}
  const b=e.target.closest("[data-rrep]");if(!b||!db)return;await write(db.doc("reviews/"+b.dataset.rrep),"update",{replied:true,repliedBy:me||"",repliedAt:new Date().toISOString()})});
-let PHONE={},CALLS=[];
+let PHONE={},CALLS=[],CRAW=[],PLOG=[];
+function callTime(c){let v=c.t??c.at;if(v&&v.toDate)return v.toDate().toISOString();if(typeof v==="string"&&/^\d+$/.test(v.trim()))v=+v;if(typeof v==="number"){if(v<1e12)v*=1000;return new Date(v).toISOString()}if(typeof v==="string"){const d=new Date(v.replace(/(\d{1,2})\/(\d{1,2})\/(\d{4})/,"$3-$2-$1"));if(!isNaN(d))return d.toISOString()}return null}
+function holderAt(iso){let h="";for(const e of PLOG){if((e.at||"")>iso)break;h=e.action==="took"?e.holder:""}return h}
+function normCall(c){const at=callTime(c);return {status:(c.status||"").toLowerCase(),number:c.number||"",at,holder:c.holder||(at?holderAt(at):"")}}
 function ago(iso){if(!iso)return"";const m=Math.round((Date.now()-new Date(iso))/6e4);return m<60?m+" min":m<1440?Math.round(m/60)+" hr":Math.round(m/1440)+" days"}
 function renderPhone(){if(!$("phoneBox"))return;const h=PHONE.holder,since=PHONE.since,mine=me&&h===me;
  const today=CALLS.filter(c=>(c.at||"").slice(0,10)===TODAY||new Date(c.at).toDateString()===new Date().toDateString());
@@ -596,7 +599,8 @@ function start(){
  on(db.doc("settings/social"),s=>{SOC=s.exists?s.data():{};render()});
  on(db.collection("reviews").orderBy("date","desc").limit(40),s=>{RFEED=s.docs.map(d=>Object.assign({id:d.id},d.data()));render()});
  on(db.doc("settings/phone"),s=>{PHONE=s.exists?s.data():{};render()});
- on(db.collection("calls").orderBy("at","desc").limit(100),s=>{CALLS=s.docs.map(d=>d.data());render()});
+ on(db.collection("phonelog").orderBy("at","desc").limit(300),s=>{PLOG=s.docs.map(d=>d.data()).reverse();CALLS=CRAW.map(normCall);render()});
+ on(db.collection("calls").limit(300),s=>{CRAW=s.docs.map(d=>d.data());CALLS=CRAW.map(normCall).filter(c=>c.at).sort((a,b)=>b.at.localeCompare(a.at));render()});
  on(db.collection("maint"),s=>{MT={};s.docs.forEach(d=>MT[d.id]=d.data());render()});
  on(db.collection("maintdone").where(firebase.firestore.FieldPath.documentId(),">=",dkey(new Date(Date.now()-60*864e5))),s=>{MD={};s.docs.forEach(d=>MD[d.id]=d.data());render()});
  on(db.collection("fixes").orderBy("at","desc").limit(40),s=>{FIX=s.docs.map(d=>Object.assign({id:d.id},d.data()));render()});
