@@ -32,6 +32,8 @@ button{cursor:pointer}
 .tabs{display:flex;gap:4px;overflow-x:auto;max-width:1100px;margin:16px auto 0}
 .tabs button{border:0;background:transparent;color:#fff;opacity:.75;padding:12px 16px;border-radius:12px 12px 0 0;font-weight:700;min-height:44px}
 .tabs button.on{background:var(--bg);color:var(--ink);opacity:1}
+.tabs .ti{margin-right:6px}.tabs .ts{display:none}
+@media(max-width:700px){.tabs{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:2px;overflow:visible}.tabs button{padding:8px 2px 6px;display:flex;flex-direction:column;align-items:center;gap:2px;min-height:56px}.tabs .ti{font-size:22px;line-height:1;margin:0}.tabs .tl{display:none}.tabs .ts{display:block;font-size:11px;line-height:1.1;white-space:nowrap}}
 main{max-width:1100px;margin:0 auto;padding:20px max(4vw,14px) 60px}
 .note{color:var(--muted);font-size:14px;margin:0 0 14px}
 .slots{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:18px;align-items:start}
@@ -138,7 +140,7 @@ table.st th{font-size:13px;color:var(--muted)}
 .statform label{font-size:13px;font-weight:700;color:var(--muted);display:flex;flex-direction:column;gap:4px}
 @media(max-width:900px){.score{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){.score{grid-template-columns:minmax(0,1fr)}.hand form{grid-template-columns:minmax(0,1fr)}}
-@media(max-width:600px){form.add,form.add.wide{grid-template-columns:minmax(0,1fr)}.tabs button{padding:10px 12px}}
+@media(max-width:600px){form.add,form.add.wide{grid-template-columns:minmax(0,1fr)}}
 .gate{position:fixed;inset:0;z-index:50;background:var(--teal);color:#fff;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center}
 .gate[hidden]{display:none}.gate div{max-width:380px}.gate h1{font-size:40px;margin-bottom:10px}.gate p{opacity:.9;margin:0 0 18px}
 .gbtn{border:0;background:#fff;color:#14262a;border-radius:999px;padding:12px 20px;font-weight:700;min-height:48px;font-size:16px}
@@ -171,12 +173,12 @@ table.st th{font-size:13px;color:var(--muted)}
   <div class="me"><span id="meName">Who are you?</span><button type="button" id="meBtn">Pick name</button></div>
  </div>
  <nav class="tabs" role="tablist">
-  <button type="button" class="on" data-tab="board" role="tab">Today's board</button>
-  <button type="button" data-tab="coming" role="tab">What's coming up</button>
-  <button type="button" data-tab="jobs" role="tab">Job list</button>
-  <button type="button" data-tab="cal" role="tab">Calendar</button>
-  <button type="button" data-tab="maint" role="tab">Maintenance</button>
-  <button type="button" data-tab="score" role="tab">Scoreboard</button>
+  <button type="button" class="on" data-tab="board" role="tab" aria-label="Today's board"><span class="ti" aria-hidden="true">📋</span><span class="tl">Today's board</span><span class="ts">Today</span></button>
+  <button type="button" data-tab="coming" role="tab" aria-label="What's coming up"><span class="ti" aria-hidden="true">🎉</span><span class="tl">What's coming up</span><span class="ts">Coming up</span></button>
+  <button type="button" data-tab="jobs" role="tab" aria-label="Job list"><span class="ti" aria-hidden="true">✅</span><span class="tl">Job list</span><span class="ts">Jobs</span></button>
+  <button type="button" data-tab="cal" role="tab" aria-label="Calendar"><span class="ti" aria-hidden="true">📅</span><span class="tl">Calendar</span><span class="ts">Calendar</span></button>
+  <button type="button" data-tab="maint" role="tab" aria-label="Maintenance"><span class="ti" aria-hidden="true">🔧</span><span class="tl">Maintenance</span><span class="ts">Fix-it</span></button>
+  <button type="button" data-tab="score" role="tab" aria-label="Scoreboard"><span class="ti" aria-hidden="true">📊</span><span class="tl">Scoreboard</span><span class="ts">Score</span></button>
  </nav>
 </header>
 <main>
@@ -221,7 +223,7 @@ table.st th{font-size:13px;color:var(--muted)}
   <section class="hand"><h2>Needs fixing</h2><div class="list" id="fixList"></div><form id="addFix" style="grid-template-columns:minmax(0,1fr) auto"><input id="fxTxt" placeholder="Something broken? e.g. Dorm 3 tap dripping" aria-label="What needs fixing"><button class="b go" type="submit">Report it</button></form></section>
   <div class="wk"><button type="button" class="b" data-wk="-1" aria-label="Last week">‹</button><b id="wkLbl"></b><button type="button" class="b" data-wk="1" aria-label="Next week">›</button><button type="button" class="b" data-wk="0">This week</button></div>
   <div class="days" id="mDays"></div>
-  <div id="mAddWrap"><h2 style="margin:26px 0 8px;font-size:20px">Add a maintenance job</h2>
+  <div id="mAddWrap"><h2 style="margin:26px 0 8px;font-size:20px">Add a maintenance job</h2><p class="note" style="margin:0 0 8px">Anyone on the crew can add jobs here so everyone knows what needs doing.</p>
   <form class="mform" id="addM"><input id="mTitle" placeholder="e.g. Pool clean, gutters, mow front" aria-label="Job"><select id="mRep" aria-label="How often"><option value="weekly">Every week</option><option value="once">Just once</option></select><select id="mDay" aria-label="Day"><option value="1">Monday</option><option value="2">Tuesday</option><option value="3">Wednesday</option><option value="4">Thursday</option><option value="5">Friday</option><option value="6">Saturday</option><option value="0">Sunday</option></select><input id="mDate" type="date" aria-label="Date" hidden><textarea id="mItems" rows="3" placeholder="Checklist, one per line (optional)" aria-label="Checklist"></textarea><input id="mNote" placeholder="Details (optional)" aria-label="Details"><button class="b go" type="submit">Add</button></form></div>
  </section>
  <section id="v-score" hidden>
@@ -338,7 +340,6 @@ function renderMaint(){if(!$("mDays"))return;const days=weekDays();
  $("wkLbl").textContent=(wkOff===0?"This week · ":"")+days[0].toLocaleDateString("en-AU",{day:"numeric",month:"short"})+" – "+days[6].toLocaleDateString("en-AU",{day:"numeric",month:"short"});
  $("mDays").innerHTML=days.map(dt=>{const k=dkey(dt),js=mJobsFor(dt);return `<section class="day${k===TODAY?" today":""}"><h3>${DOW[dt.getDay()]}<small>${dt.toLocaleDateString("en-AU",{day:"numeric",month:"short"})}</small></h3>${js.length?js.map(([id,m])=>{const its=(m.items&&m.items.length?m.items:[m.title]),done=(MD[k+"_"+id]||{}),n=its.filter((_,i)=>done[i]).length;return `<div class="mj"><div class="tt">${esc(m.title)}<small>${n}/${its.length}${m.rep==="weekly"?" · weekly":""}</small></div>${m.note?`<p class="d" style="margin:2px 0 4px">${esc(m.note)}</p>`:""}${its.map((t,i)=>`<label class="ck${done[i]?" on":""}"><input type="checkbox" data-mck="${esc(k)}|${esc(id)}|${i}"${done[i]?" checked":""}><span>${esc(t)}${done[i]?`<small>${esc(done[i])}</small>`:""}</span></label>`).join("")}${isMgr()?`<button type="button" class="b" style="padding:2px 10px;font-size:12px;min-height:30px;margin-top:4px" data-mdel="${esc(id)}">Remove${m.rep==="weekly"?" (every week)":""}</button>`:""}</div>`}).join(""):`<p class="note" style="margin:0">Nothing booked.</p>`}</section>`}).join("");
  $("fixList").innerHTML=FIX.length?FIX.map(f=>`<div class="fx"><div>${esc(f.text)}<small>${esc(byN(f.by)||"")} · ${esc(fmtDate((f.at||"").slice(0,10)))}${f.fixedBy?" · fixed by "+esc(f.fixedBy):""}</small></div>${f.fixedBy?(isMgr()?`<button type="button" class="b" data-fx="clear" data-id="${esc(f.id)}">Clear</button>`:""):`<button type="button" class="b ok" data-fx="fixed" data-id="${esc(f.id)}">Fixed it</button>`}</div>`).join(""):`<p class="note" style="margin:0">Nothing reported. Legend.</p>`;
- $("mAddWrap").hidden=!isMgr();
 }
 document.addEventListener("click",async e=>{const w=e.target.closest("[data-wk]");if(w){const v=+w.dataset.wk;wkOff=v?wkOff+v:0;renderMaint();return}
  const d=e.target.closest("[data-mdel]");if(d&&db){if(confirm("Remove this job?"))await write(db.doc("maint/"+d.dataset.mdel),"delete");return}
