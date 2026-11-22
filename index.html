@@ -35,8 +35,8 @@ button{cursor:pointer}
 .tabs{display:flex;gap:4px;overflow-x:auto;max-width:1100px;margin:16px auto 0}
 .tabs button{border:0;background:transparent;color:#fff;opacity:.75;padding:12px 16px;border-radius:12px 12px 0 0;font-weight:700;min-height:44px}
 .tabs button.on{background:var(--bg);color:var(--ink);opacity:1}
-.tabs{display:grid;grid-template-columns:repeat(6,minmax(0,84px));gap:4px;overflow:visible;max-width:1100px;margin:16px auto 0}
-@media(max-width:600px){.tabs{grid-template-columns:repeat(6,minmax(0,1fr))}}
+.tabs{display:grid;grid-template-columns:repeat(7,minmax(0,78px));gap:4px;overflow:visible;max-width:1100px;margin:16px auto 0}
+@media(max-width:600px){.tabs{grid-template-columns:repeat(7,minmax(0,1fr))}.tabs .ti{font-size:22px}}
 .tabs button{padding:8px 0;display:flex;align-items:center;justify-content:center;min-height:52px}
 .tabs .ti{font-size:26px;line-height:1}.tabs .tl,.tabs .ts{display:none}
 .tabname{max-width:1100px;margin:0 auto;padding:14px max(4vw,14px) 0;font:600 22px Fredoka,sans-serif}
@@ -123,7 +123,7 @@ dialog h2{font-size:24px;margin-bottom:6px}
 .post{flex:none;width:160px;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:8px;font-size:13px}
 .post img{width:100%;height:110px;object-fit:cover;border-radius:8px;display:block;margin-bottom:6px}
 .post a{color:var(--teal2);font-weight:700;word-break:break-all}
-form.pform{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;gap:8px}
+form.pform{display:grid;grid-template-columns:auto auto minmax(0,1fr) minmax(0,1fr) auto auto;gap:8px}
 @media(max-width:600px){form.pform{grid-template-columns:minmax(0,1fr)}}
 .crewsoc{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,210px),1fr));gap:8px;margin:12px 0}
 .soc{background:var(--bg);border-radius:12px;padding:8px 10px;font-size:14px}.soc b{display:block;font-family:Fredoka,sans-serif;font-weight:600}
@@ -169,6 +169,14 @@ table.st th{font-size:13px;color:var(--muted)}
 .it.meal{background:#ffe7c2;color:#5a3600}.it.adventure{background:#cdeee9;color:#0b3d39}.it.maint{background:#e3e0d6;color:#3a3a30}
 .legend{display:flex;gap:14px;font-size:13px;font-weight:700;margin-bottom:8px;flex-wrap:wrap}.dot{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px}.dot.meal{background:#f6b04a}.dot.adventure{background:#38b2a3}.dot.maint{background:#a39e8a}
 @media(max-width:600px){.mc{min-height:54px;font-size:10px}.mc .it{padding:0 2px}}
+.tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:12px}
+.tc{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:8px}
+.tc .hd{display:flex;gap:12px;align-items:center}.tc .av{width:56px;height:56px;border-radius:50%;object-fit:cover;background:var(--teal);color:#fff;display:flex;align-items:center;justify-content:center;font:600 24px Fredoka,sans-serif;flex:none}
+.tc h3{font-size:20px}.tc .own{font-size:13px;font-weight:700;color:var(--teal2)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}.chips span{background:var(--bg);border-radius:999px;padding:3px 10px;font-size:13px;font-weight:700}.chips.sk span{background:light-dark(#e3f1ef,#123b38)}
+.tc label{font-size:13px;font-weight:700;color:var(--muted);display:flex;flex-direction:column;gap:4px}.tc .row3{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.sbar{height:10px;border-radius:999px;background:var(--line);overflow:hidden;flex:1 1 120px}.sbar i{display:block;height:100%;background:var(--ok)}
+.srow{display:flex;align-items:center;gap:10px;font-size:14.5px;font-weight:700;margin:6px 0}.srow span:first-child{min-width:130px}
 @media(prefers-reduced-motion:reduce){.bar .prog i{transition:none}}
 </style>
 </head>
@@ -184,6 +192,7 @@ table.st th{font-size:13px;color:var(--muted)}
   <button type="button" data-tab="jobs" role="tab" aria-label="Job list" title="Job list"><span class="ti" aria-hidden="true">✅</span><span class="tl">Job list</span><span class="ts">Jobs</span></button>
   <button type="button" data-tab="cal" role="tab" aria-label="Calendar" title="Calendar"><span class="ti" aria-hidden="true">📅</span><span class="tl">Calendar</span><span class="ts">Calendar</span></button>
   <button type="button" data-tab="maint" role="tab" aria-label="Maintenance" title="Maintenance"><span class="ti" aria-hidden="true">🔧</span><span class="tl">Maintenance</span><span class="ts">Fix-it</span></button>
+  <button type="button" data-tab="team" role="tab" aria-label="Team" title="Team"><span class="ti" aria-hidden="true">👥</span><span class="tl">Team</span><span class="ts">Team</span></button>
   <button type="button" data-tab="score" role="tab" aria-label="Scoreboard" title="Scoreboard"><span class="ti" aria-hidden="true">📊</span><span class="tl">Scoreboard</span><span class="ts">Score</span></button>
  </nav>
 </header>
@@ -193,7 +202,8 @@ table.st th{font-size:13px;color:var(--muted)}
   <div class="share" id="share"></div>
   <div class="score" id="score"></div>
   <section class="hand"><h2>Handover</h2><div id="notes"><p class="note" style="margin:0">No notes yet today.</p></div><form id="addNote"><textarea id="noteTxt" rows="2" placeholder="Anything the next person should know? Guest issues, things broken, what's left to do." aria-label="Handover note"></textarea><button class="b go" type="submit">Post</button></form></section>
-  <section class="hand"><h2>Posted about the hostel</h2><p class="note" style="margin:0 0 8px">Posted a good time at Charlie's on your own TikTok, Insta or Facebook, or spotted a guest's post? Add it here. Your own posts about the hostel are the best advertising there is. Only posts about the hostel count.</p><div class="posts" id="posts"></div><h3 style="margin:14px 0 0;font:600 17px Fredoka,sans-serif">Crew socials</h3><p class="note" style="margin:2px 0 0">Follow each other, and like, share and tag each other's hostel posts.</p><div class="crewsoc" id="crewsoc"></div><form class="hform" id="myHandles"><input id="hIg" placeholder="Your Insta @" aria-label="Your Instagram handle"><input id="hTt" placeholder="Your TikTok @" aria-label="Your TikTok handle"><input id="hFb" placeholder="Your Facebook name or link" aria-label="Your Facebook"><button class="b" type="submit">Save my socials</button></form><h3 style="margin:16px 0 6px;font:600 17px Fredoka,sans-serif">Add a post</h3><form class="pform" id="addPost"><select id="pPlat" aria-label="Where"><option>Instagram</option><option>TikTok</option><option>Facebook</option><option>Google</option><option>Other</option></select><input id="pLink" placeholder="Paste the link (optional)" aria-label="Link"><button class="b" type="button" id="pShot">Add screenshot</button><button class="b go" type="submit">Post it</button></form></section>
+  <section class="hand" id="socialBox"></section>
+  <section class="hand"><h2>Posted about the hostel</h2><p class="note" style="margin:0 0 8px">Posted a good time at Charlie's on your own TikTok, Insta or Facebook, or spotted a guest's post? Add it here. Your own posts about the hostel are the best advertising there is. Only posts about the hostel count.</p><div class="posts" id="posts"></div><h3 style="margin:14px 0 0;font:600 17px Fredoka,sans-serif">Crew socials</h3><p class="note" style="margin:2px 0 0">Follow each other, and like, share and tag each other's hostel posts.</p><div class="crewsoc" id="crewsoc"></div><form class="hform" id="myHandles"><input id="hIg" placeholder="Your Insta @" aria-label="Your Instagram handle"><input id="hTt" placeholder="Your TikTok @" aria-label="Your TikTok handle"><input id="hFb" placeholder="Your Facebook name or link" aria-label="Your Facebook"><button class="b" type="submit">Save my socials</button></form><h3 style="margin:16px 0 6px;font:600 17px Fredoka,sans-serif">Add a post</h3><form class="pform" id="addPost"><select id="pPlat" aria-label="Where"><option>Instagram</option><option>TikTok</option><option>Facebook</option><option>Google</option><option>Other</option></select><select id="pType" aria-label="Type"><option>Post</option><option>Reel</option><option>Story</option></select><select id="pEv" aria-label="Which meal or trip"><option value="">Not about an event</option></select><input id="pLink" placeholder="Paste the link (optional)" aria-label="Link"><button class="b" type="button" id="pShot">Add screenshot</button><button class="b go" type="submit">Post it</button></form></section>
   <p class="note">Every day, everyone grabs 1 shift (reception or bar), 2 social things and 2 cleaning things. No set hours: pick the ones that suit you, own them, tick them when they're done. A manager checks it off when it's up to standard.</p>
   <div class="bar"><div class="prog"><i id="progBar" style="width:0"></i></div><span id="progTxt">Loading today's board…</span></div>
   <div class="slots" id="slots"></div>
@@ -233,6 +243,10 @@ table.st th{font-size:13px;color:var(--muted)}
   <div id="mAddWrap"><h2 style="margin:26px 0 8px;font-size:20px">Add a maintenance job</h2><p class="note" style="margin:0 0 8px">Anyone on the crew can add jobs here so everyone knows what needs doing.</p>
   <form class="mform" id="addM"><input id="mTitle" placeholder="e.g. Pool clean, gutters, mow front" aria-label="Job"><select id="mRep" aria-label="How often"><option value="weekly">Every week</option><option value="once">Just once</option></select><select id="mDay" aria-label="Day"><option value="1">Monday</option><option value="2">Tuesday</option><option value="3">Wednesday</option><option value="4">Thursday</option><option value="5">Friday</option><option value="6">Saturday</option><option value="0">Sunday</option></select><input id="mDate" type="date" aria-label="Date" hidden><textarea id="mItems" rows="3" placeholder="Checklist, one per line (optional)" aria-label="Checklist"></textarea><input id="mNote" placeholder="Details (optional)" aria-label="Details"><button class="b go" type="submit">Add</button></form></div>
  </section>
+ <section id="v-team" hidden>
+  <p class="note">Get to know the crew. Add a bit about yourself, what you're good at and what you're into, so we can match jobs and trips to people. Tap Edit on your own card.</p>
+  <div class="tgrid" id="teamList"></div>
+ </section>
  <section id="v-score" hidden>
   <p class="note">What we're measured on: beds filled, good reviews and bar sales. These fill in automatically: paid beds (volunteer, staff and blocked beds don't count), check-ins and check-outs from Cloudbeds, review scores from each booking site, and bar sales from the Whoods daily report. Managers only need the form below to fix a day.</p>
   <form class="statform" id="statForm"><label>Date<input id="sDate" type="date"></label><label>Beds sold tonight<input id="sBeds" type="number" min="0" inputmode="numeric"></label><label>Beds available<input id="sTotal" type="number" min="1" inputmode="numeric"></label><label>Check-ins<input id="sIn" type="number" min="0" inputmode="numeric"></label><label>Check-outs<input id="sOut" type="number" min="0" inputmode="numeric"></label><label>New reviews<input id="sRev" type="number" min="0" inputmode="numeric"></label><label>Their average score<input id="sRate" type="number" min="0" max="10" step="0.1" inputmode="decimal"></label><label>Bar sales ($)<input id="sBar" type="number" min="0" step="1" inputmode="decimal"></label><button class="b go" type="submit" style="align-self:end">Save day</button></form>
@@ -240,7 +254,7 @@ table.st th{font-size:13px;color:var(--muted)}
   <div class="scroll"><table class="st" id="statTbl"></table></div>
  </section>
 </main>
-<input type="file" id="photoIn" accept="image/*" capture="environment" hidden><input type="file" id="shotIn" accept="image/*" hidden><input type="file" id="evPhotoIn" accept="image/*" hidden>
+<input type="file" id="photoIn" accept="image/*" capture="environment" hidden><input type="file" id="shotIn" accept="image/*" hidden><input type="file" id="evPhotoIn" accept="image/*" hidden><input type="file" id="profIn" accept="image/*" hidden>
 <div class="gate" id="gate"><div><img src="crew-logo.png" alt="Charlie's Crew" style="height:160px;width:auto;margin-bottom:10px"><h1>Charlie's Crew Board</h1><p id="gateMsg">Gladstone Backpackers crew only. Sign in with your Google account.</p><button type="button" class="gbtn" id="signIn">Sign in with Google</button><p id="gateOut" style="margin-top:16px;font-size:14px" hidden><a href="#" id="signOut2" style="color:#fff">Use a different account</a></p></div></div>
 <div class="status" id="status" role="status"></div>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -262,7 +276,7 @@ const isMgr=()=>me&&CREW.managers.includes(me);
 let stT;function status(m,ms=2600){const s=$("status");s.textContent=m;s.style.display="block";clearTimeout(stT);if(ms)stT=setTimeout(()=>s.style.display="none",ms)}
 function askName(){if(!AUTHU)doSignIn();else status("Ask Luke to let you onto the crew.")}
 $("meBtn").addEventListener("click",()=>{if(AUTHU&&confirm("Sign out?"))firebase.auth().signOut()});
-document.querySelector(".tabs").addEventListener("click",e=>{const b=e.target.closest("[data-tab]");if(!b)return;$("tabName").textContent=b.getAttribute("aria-label");document.querySelectorAll(".tabs button").forEach(x=>x.classList.toggle("on",x===b));["board","coming","jobs","cal","maint","score"].forEach(t=>$("v-"+t).hidden=t!==b.dataset.tab)});
+document.querySelector(".tabs").addEventListener("click",e=>{const b=e.target.closest("[data-tab]");if(!b)return;$("tabName").textContent=b.getAttribute("aria-label");document.querySelectorAll(".tabs button").forEach(x=>x.classList.toggle("on",x===b));["board","coming","jobs","cal","maint","team","score"].forEach(t=>$("v-"+t).hidden=t!==b.dataset.tab)});
 function recentPast(){const lim=new Date(Date.now()-14*864e5).toISOString().slice(0,10);return Object.entries(EVS).map(([id,e])=>({id,...e})).filter(e=>(e.date||"")<TODAY&&(e.date||"")>=lim).sort((a,b)=>(b.date||"").localeCompare(a.date||""))}
 function upcoming(){const now=TODAY;return Object.entries(EVS).map(([id,e])=>({id,...e})).filter(e=>(e.date||"")>=now).sort((a,b)=>(a.date||"").localeCompare(b.date||"")||(a.time||"").localeCompare(b.time||""))}
 const CATN={shift:"Shift",social:"Social",clean:"Cleaning",other:"Other"};
@@ -330,13 +344,15 @@ function render(){
  document.querySelectorAll("form.add button,form.add input,form.add select").forEach(x=>x.disabled=readOnly||!db);
  $("addTpl").style.display=isMgr()?"":"none";
  $("statForm").style.display=isMgr()?"":"none";$("revForm").style.display=isMgr()?"":"none";
- const myJ=Object.values(JOBS).filter(j=>me&&mineJ(j)),cnt=c=>myJ.filter(j=>catOf(j)===c).length,NEED=[["shift",1,"shift (reception or bar)"],["social",2,"social"],["clean",2,"cleaning"]];
+ const myJ=Object.values(JOBS).filter(j=>me&&mineJ(j)),cnt=c=>myJ.filter(j=>catOf(j)===c).length,SH=me?shareFor(me):DEFSHARE,NEED=[["shift",SH.shift,"shift (reception or bar)"],["social",SH.social,"social"],["clean",SH.clean,"cleaning"]].filter(x=>x[1]>0);
  $("share").innerHTML=me?`<b>Your share today</b>${NEED.map(([c,n,l])=>{const h=Math.min(cnt(c),n);return `<span class="need${h>=n?" met":""}">${h}/${n} ${l}</span>`}).join("")}${NEED.every(([c,n])=>cnt(c)>=n)?`<span class="who mine">Legend, you're sorted for today.</span>`:""}`:`<b>Your share today</b><span class="note" style="margin:0">1 shift, 2 social, 2 cleaning. Pick your name to start.</span>`;
  $("crewsoc").innerHTML=CREW.names.map(n=>{const l=socLinks(HANDLES[n]);return `<div class="soc"><b>${esc(n)}</b>${l||'<span class="note" style="margin:0">Not added yet</span>'}</div>`}).join("");
  if(me&&!handDirty){const h=HANDLES[me]||{};$("hIg").value=h.ig||"";$("hTt").value=h.tt||"";$("hFb").value=h.fb||""}
  $("posts").innerHTML=POSTS.length?POSTS.slice(0,12).map(p=>`<div class="post">${p.shot?`<img src="${esc(p.shot)}" alt="Screenshot of a ${esc(p.platform)} post">`:""}<b>${esc(p.platform)}</b> · ${esc(byN(p.by)||"")}${p.handle?` <small>@${esc(p.handle)}</small>`:""}<br><small>${esc(fmtDate((p.at||"").slice(0,10)))}</small>${p.link&&/^https?:\/\//.test(p.link)?`<br><a href="${esc(p.link)}" target="_blank" rel="noopener">Open post</a>`:""}</div>`).join(""):`<p class="note" style="margin:0">Nothing posted this week yet.</p>`;
  $("notes").innerHTML=NOTES.length?NOTES.slice(0,6).map(n=>`<div class="hn">${esc(n.text)}<small>${esc(byN(n.by)||"")} · ${esc(new Date(n.at).toLocaleString("en-AU",{weekday:"short",hour:"numeric",minute:"2-digit"}))}</small></div>`).join(""):`<p class="note" style="margin:0">No handover notes yet.</p>`;
  renderScore();
+ renderTeam();
+ renderSocial();
  renderRevForm();
  renderMaint();
  renderCal();
@@ -376,6 +392,49 @@ document.addEventListener("click",e=>{const m=e.target.closest("[data-mo]");if(m
  const c=e.target.closest("[data-cday]");if(c){selDay=c.dataset.cday;renderCal();return}
  const a=e.target.closest("[data-cadd]");if(a){const k=a.dataset.cadd;if(k==="maint"){$("mRep").value="once";$("mRep").dispatchEvent(new Event("change"));$("mDate").value=selDay;goTab("maint");$("mTitle").focus()}else{$("evDate").value=selDay;$("evKind").value=k;goTab("coming");$("evTitle").focus()}}});
 $("revForm").addEventListener("submit",async e=>{e.preventDefault();if(!db)return;const pl={};document.querySelectorAll("[data-rp]").forEach(i=>{const p=i.dataset.rp;pl[p]=pl[p]||{outOf:(PLATS.find(x=>x[0]===p)||[0,10])[1]};pl[p][i.dataset.rk]=i.value===""?null:+i.value});if(await write(db.doc("settings/reviews"),"set",{platforms:pl,at:new Date().toISOString(),by:me||""}))status("Scores saved")});
+let PROF={},SOC={},editP=null,profPhoto=null;
+const pkey=n=>String(n).replace(/[^A-Za-z0-9_-]/g,"_");
+const DEFSHARE={shift:1,social:2,clean:2};
+function shareFor(n){const p=PROF[n]||{};return Object.assign({},DEFSHARE,p.share||{})}
+function chips(t,cls){const a=(t||"").split(",").map(x=>x.trim()).filter(Boolean);return a.length?`<div class="chips ${cls||""}">${a.map(x=>`<span>${esc(x)}</span>`).join("")}</div>`:""}
+function renderTeam(){if(!$("teamList"))return;if(editP&&document.activeElement&&document.activeElement.closest&&document.activeElement.closest("[data-prof]"))return;
+ const TN=[...new Set([...CREW.names,...Object.keys(PROF)])];$("teamList").innerHTML=TN.map(n=>{const p=PROF[n]||{},sh=shareFor(n),can=me&&(me===n||isMgr()),ed=editP===n,mgr=CREW.managers.includes(n);
+  const av=p.photo?`<img class="av" src="${esc(p.photo)}" alt="${esc(n)}">`:`<div class="av">${esc(n[0]||"?")}</div>`;
+  if(ed)return `<article class="tc"><div class="hd">${av}<h3>${esc(n)}</h3></div><form data-prof="${esc(n)}" style="display:flex;flex-direction:column;gap:8px">
+   <label>About me<textarea name="about" rows="2" placeholder="Where you're from, how long you're here">${esc(p.about||"")}</textarea></label>
+   <label>Skills (comma between each)<input name="skills" value="${esc(p.skills||"")}" placeholder="e.g. barista, photos, cooking, carpentry"></label>
+   <label>Interests (comma between each)<input name="interests" value="${esc(p.interests||"")}" placeholder="e.g. surfing, hiking, music"></label>
+   ${isMgr()?`<label>In charge of<input name="owns" value="${esc(p.owns||"")}" placeholder="e.g. Social media"></label><div class="row3"><label>Shifts a day<input name="sh_shift" type="number" min="0" value="${sh.shift}"></label><label>Social a day<input name="sh_social" type="number" min="0" value="${sh.social}"></label><label>Cleaning a day<input name="sh_clean" type="number" min="0" value="${sh.clean}"></label></div>`:""}
+   <div class="btns"><button type="button" class="b" data-pphoto="${esc(n)}">${p.photo?"Change photo":"Add photo"}</button><button class="b go" type="submit">Save</button><button type="button" class="b" data-pcancel="1">Cancel</button></div></form></article>`;
+  return `<article class="tc"><div class="hd">${av}<div><h3>${esc(n)}</h3>${mgr?`<div class="own">Manager</div>`:""}${p.owns?`<div class="own">In charge of: ${esc(p.owns)}</div>`:""}</div></div>
+  ${p.about?`<p class="d" style="margin:0">${esc(p.about)}</p>`:""}${p.skills?`<b style="font-size:13px">Skills</b>${chips(p.skills,"sk")}`:""}${p.interests?`<b style="font-size:13px">Into</b>${chips(p.interests)}`:""}
+  ${!p.about&&!p.skills&&!p.interests?`<p class="note" style="margin:0">${me===n?"Tap Edit and tell the crew a bit about you.":"Nothing added yet."}</p>`:""}
+  <div class="note" style="margin:0;font-size:13px">Daily share: ${sh.shift} shift · ${sh.social} social · ${sh.clean} cleaning</div>
+  ${socLinks(HANDLES[n])?`<div class="soc" style="padding:0;background:none">${socLinks(HANDLES[n])}</div>`:""}
+  ${can?`<div class="btns"><button type="button" class="b" data-pedit="${esc(n)}">Edit</button></div>`:""}</article>`}).join("");
+}
+document.addEventListener("click",e=>{const a=e.target.closest("[data-pedit]");if(a){editP=a.dataset.pedit;renderTeam();return}if(e.target.closest("[data-pcancel]")){editP=null;profPhoto=null;renderTeam();return}
+ const ph=e.target.closest("[data-pphoto]");if(ph){$("profIn").value="";$("profIn").click()}});
+document.addEventListener("submit",async e=>{const f=e.target.closest("[data-prof]");if(!f||!db)return;e.preventDefault();const n=f.dataset.prof,v=k=>(f.elements[k]?f.elements[k].value.trim():undefined);
+ const d={name:n,about:v("about"),skills:v("skills"),interests:v("interests"),at:new Date().toISOString(),by:me||""};
+ if(isMgr()){d.owns=v("owns");d.share={shift:+v("sh_shift"),social:+v("sh_social"),clean:+v("sh_clean")}}
+ if(profPhoto)d.photo=profPhoto;
+ if(await write(db.doc("profiles/"+pkey(n)),"set",Object.assign({},PROF[n]||{},d))){editP=null;profPhoto=null;status("Saved")}});
+function weekPosts(){const cut=new Date(Date.now()-7*864e5).toISOString();return POSTS.filter(p=>(p.at||"")>=cut)}
+function renderSocial(){if(!$("socialBox"))return;const owner=SOC.owner||Object.keys(PROF).find(n=>/social/i.test(PROF[n].owns||""))||"";const T=Object.assign({posts:5,reels:2},SOC.targets||{});
+ const wp=weekPosts(),posts=wp.length,reels=wp.filter(p=>p.type==="Reel").length,mine=owner?wp.filter(p=>p.by===owner).length:0;
+ const lim=dkey(new Date(Date.now()-7*864e5));const adv=Object.entries(EVS).filter(([,e])=>e.kind==="adventure"&&(e.date||"")>=lim&&(e.date||"")<=TODAY);
+ const covered=adv.filter(([id])=>wp.some(p=>p.event===id)||(TALK["coming:"+id]||[]).some(x=>x.type!=="msg")).length;
+ const bar=(n,t)=>`<span class="sbar"><i style="width:${Math.min(100,t?n/t*100:0)}%"></i></span>`;
+ $("socialBox").innerHTML=`<h2>📣 Social media${owner?` · ${esc(owner)}'s in charge`:""}</h2><p class="note" style="margin:0 0 6px">${owner?esc(owner)+" owns our socials, but everyone can post. Every post below counts towards the targets.":"No one's in charge yet. Set it on a Team card."}</p>
+ <div class="srow"><span>Posts this week</span>${bar(posts,T.posts)}<span>${posts}/${T.posts}</span></div>
+ <div class="srow"><span>Reels this week</span>${bar(reels,T.reels)}<span>${reels}/${T.reels}</span></div>
+ <div class="srow"><span>Trips covered</span>${bar(covered,adv.length||1)}<span>${adv.length?covered+"/"+adv.length:"none this week"}</span></div>
+ ${owner?`<p class="note" style="margin:4px 0 0">${esc(owner)}: ${mine} · rest of the crew: ${posts-mine}</p>`:""}
+ ${isMgr()?`<form id="socT" class="statform" style="margin:10px 0 0;padding:10px"><label>Posts a week<input name="posts" type="number" min="0" value="${T.posts}"></label><label>Reels a week<input name="reels" type="number" min="0" value="${T.reels}"></label><label>In charge<select name="owner">${["",...new Set([...CREW.names,...Object.keys(PROF)])].map(n=>`<option${n===owner?" selected":""}>${esc(n)}</option>`).join("")}</select></label><button class="b" type="submit" style="align-self:end">Set targets</button></form>`:""}`;
+ const sel=$("pEv");if(sel&&document.activeElement!==sel){const cur=sel.value;const evs=Object.entries(EVS).filter(([,e])=>(e.date||"")>=dkey(new Date(Date.now()-14*864e5))).sort((a,b)=>(b[1].date||"").localeCompare(a[1].date||""));sel.innerHTML=`<option value="">Not about an event</option>`+evs.map(([id,e])=>`<option value="${esc(id)}"${id===cur?" selected":""}>${esc(e.title)} (${esc(fmtDate(e.date))})</option>`).join("")}
+}
+document.addEventListener("submit",async e=>{if(e.target.id!=="socT"||!db)return;e.preventDefault();const f=e.target;if(await write(db.doc("settings/social"),"set",{owner:f.elements.owner.value,targets:{posts:+f.elements.posts.value,reels:+f.elements.reels.value},at:new Date().toISOString(),by:me||""}))status("Targets set")});
 function sumDays(from,to,f){let t=0,n=0;for(let i=from;i<to;i++){const d=new Date();d.setDate(d.getDate()-i);const s=STATS[dkey(d)];if(s&&s[f]!=null&&s[f]!==""){t+=+s[f];n++}}return{t,n}}
 let REVS={};const PLATS=[["Hostelworld",10],["Booking.com",10],["Google",5],["TripAdvisor",5],["Agoda",10],["Expedia",10]];
 function revAvg(){let t=0,n=0,u=0;const rows=[];PLATS.forEach(([p,out])=>{const r=(REVS.platforms||{})[p];if(!r||r.rating==null||r.rating==="")return;const s10=+r.rating/(+r.outOf||out)*10,c=+r.count||0;rows.push([p,+r.rating,+r.outOf||out,c]);if(c){t+=s10*c;n+=c}else{u+=s10}});const avg=n?t/n:(rows.length?u/rows.length:null);return{avg,rows,n}}
@@ -437,11 +496,12 @@ $("addPromo").addEventListener("submit",async e=>{e.preventDefault();const t=$("
 $("addTpl").addEventListener("submit",async e=>{e.preventDefault();const t=$("tpTitle").value.trim();if(!t||!db)return;if(await write(db.collection("templates").doc("t"+Date.now().toString(36)),"set",{title:t,note:$("tpNote").value.trim(),time:$("tpTime").value,cat:$("tpCat").value,slot:$("tpSlot").value,kind:"job",order:80})){$("tpTitle").value="";$("tpNote").value=""}});
 function shrink(file){return new Promise((res,rej)=>{const img=new Image(),url=URL.createObjectURL(file);img.onload=()=>{let w=img.width,h=img.height,max=900;if(w>max||h>max){const r=Math.min(max/w,max/h);w=Math.round(w*r);h=Math.round(h*r)}const c=document.createElement("canvas");let q=.6,out;for(let i=0;i<5;i++){c.width=w;c.height=h;c.getContext("2d").drawImage(img,0,0,w,h);out=c.toDataURL("image/jpeg",q);if(out.length<170000)break;w=Math.round(w*.75);h=Math.round(h*.75);q=.5}URL.revokeObjectURL(url);res(out)};img.onerror=()=>{URL.revokeObjectURL(url);rej()};img.src=url})}
 $("photoIn").addEventListener("change",async()=>{const f=$("photoIn").files[0],id=photoFor;photoFor=null;if(!f||!id||!db)return;status("Uploading photo…",0);try{const p=await shrink(f);const J=JOBS[id];let upd;if(J&&J.multi){const dn=(J.doneBy||[]).slice();if(!dn.includes(me))dn.push(me);const ph=Object.assign({},J.photos||{});ph[me]=p;upd={doneBy:dn,photos:ph}}else upd={done:true,doneBy:me,doneAt:new Date().toISOString(),redo:false,photo:p};if(await write(db.doc(`days/${TODAY}/jobs/${id}`),"update",upd))status("Done, photo added")}catch(e){status("That photo didn't work. Try another, or tap Done, no photo.",5000)}});
+$("profIn").addEventListener("change",async()=>{const f=$("profIn").files[0];if(!f)return;try{profPhoto=await shrink(f);status("Photo ready, tap Save")}catch(e){status("That photo didn't work.")}});
 $("pShot").addEventListener("click",()=>{$("shotIn").value="";$("shotIn").click()});
 $("shotIn").addEventListener("change",async()=>{const f=$("shotIn").files[0];if(!f)return;try{shot=await shrink(f);$("pShot").textContent="Screenshot added ✓"}catch(e){status("That image didn't work.")}});
 ["hIg","hTt","hFb"].forEach(i=>$(i).addEventListener("input",()=>handDirty=true));
 $("myHandles").addEventListener("submit",async e=>{e.preventDefault();if(!db)return;if(!me){askName();return}const d={ig:hClean($("hIg").value),tt:hClean($("hTt").value),fb:hClean($("hFb").value),at:new Date().toISOString()};if(await write(db.doc("handles/"+me.replace(/[^A-Za-z0-9_-]/g,"_")),"set",Object.assign({name:me},d))){handDirty=false;status("Socials saved")}});
-$("addPost").addEventListener("submit",async e=>{e.preventDefault();if(!db)return;if(!me){askName();return}const link=$("pLink").value.trim();if(!link&&!shot){status("Add a link or a screenshot.");return}if(await write(db.collection("posts").doc("p"+Date.now().toString(36)),"set",{platform:$("pPlat").value,link,shot:shot||"",by:me,handle:(HANDLES[me]||{})[{Instagram:"ig",TikTok:"tt",Facebook:"fb"}[$("pPlat").value]]||"",at:new Date().toISOString()})){$("pLink").value="";shot=null;$("pShot").textContent="Add screenshot";status("Thanks, that's on the board")}});
+$("addPost").addEventListener("submit",async e=>{e.preventDefault();if(!db)return;if(!me){askName();return}const link=$("pLink").value.trim();if(!link&&!shot){status("Add a link or a screenshot.");return}if(await write(db.collection("posts").doc("p"+Date.now().toString(36)),"set",{platform:$("pPlat").value,type:$("pType").value,event:$("pEv").value||"",link,shot:shot||"",by:me,handle:(HANDLES[me]||{})[{Instagram:"ig",TikTok:"tt",Facebook:"fb"}[$("pPlat").value]]||"",at:new Date().toISOString()})){$("pLink").value="";shot=null;$("pShot").textContent="Add screenshot";status("Thanks, that's on the board")}});
 $("addNote").addEventListener("submit",async e=>{e.preventDefault();const t=$("noteTxt").value.trim();if(!t||!db)return;if(!me){askName();return}if(await write(db.collection("notes").doc("n"+Date.now().toString(36)),"set",{text:t,by:me,at:new Date().toISOString(),day:TODAY}))$("noteTxt").value=""});
 $("sDate").value=TODAY;
 let statDirty=false;["sBeds","sTotal","sIn","sOut","sRev","sRate","sBar"].forEach(i=>$(i).addEventListener("input",()=>statDirty=true));
@@ -506,6 +566,8 @@ function start(){
  on(db.collection("coming"),s=>{EVS={};s.docs.forEach(d=>EVS[d.id]=d.data());watchTalk();render()});
  on(db.collection("ads"),s=>{ADS={};s.docs.forEach(d=>ADS[d.id]=d.data());render()});
  on(db.doc("settings/reviews"),s=>{REVS=s.exists?s.data():{};render()});
+ on(db.collection("profiles"),s=>{PROF={};s.docs.forEach(d=>{const x=d.data();if(x.name)PROF[x.name]=x});render()});
+ on(db.doc("settings/social"),s=>{SOC=s.exists?s.data():{};render()});
  on(db.collection("maint"),s=>{MT={};s.docs.forEach(d=>MT[d.id]=d.data());render()});
  on(db.collection("maintdone").where(firebase.firestore.FieldPath.documentId(),">=",dkey(new Date(Date.now()-60*864e5))),s=>{MD={};s.docs.forEach(d=>MD[d.id]=d.data());render()});
  on(db.collection("fixes").orderBy("at","desc").limit(40),s=>{FIX=s.docs.map(d=>Object.assign({id:d.id},d.data()));render()});
