@@ -31,7 +31,16 @@
       <path d="M372 330 C 378 312 362 300 344 310" fill="none" stroke-width="4"/>
       <path d="M408 262 C 414 246 404 234 390 236 C 374 236 366 248 372 262 Z" fill="#ffffff"/>
       <!-- wave tattoo on bicep -->
-      <path d="M150 336 q8 -8 16 0 q8 -8 16 0" stroke="#1d5fa8" stroke-width="4" fill="none"/>
+      <g stroke-width="2.5">
+        <path d="M156 332 c-6 -8 -18 -2 -10 8 l10 10 l10 -10 c8 -10 -4 -16 -10 -8 Z" fill="#c8402c" stroke="#1d5fa8"/>
+        <path d="M140 344 h32 l-4 5 l4 5 h-32 l4 -5 Z" fill="#f6c343" stroke="#1d5fa8"/>
+      </g>
+      <g stroke="#1d5fa8" stroke-width="2.5" fill="none">
+        <path d="M356 322 l4 9 l9 1 l-7 6 l2 9 l-8 -5 l-8 5 l2 -9 l-7 -6 l9 -1 Z" fill="#1d5fa8"/>
+      </g>
+      <!-- arm scar with stitches -->
+      <path d="M380 340 l14 -10" stroke="#c8402c" stroke-width="3" fill="none"/>
+      <path d="M383 332 l4 6 M388 329 l4 6" stroke="#1b1b1b" stroke-width="2" fill="none"/>
       <!-- torso (V shape) -->
       <path d="M186 318 C 220 306 292 306 326 318 L 306 440 L 206 440 Z" fill="#ffffff"/>
       <path d="M204 330 C 232 342 280 342 308 330 L 296 440 L 216 440 Z" fill="#f7f7f2"/>
@@ -49,6 +58,10 @@
     <!-- muzzle + scruffy beard -->
     <path d="M208 290 C 208 264 304 264 304 290 C 304 308 294 318 288 322 l6 12 l-12 -4 l-4 14 l-10 -10 l-8 14 l-8 -14 l-10 10 l-4 -14 l-12 4 l6 -12 C 218 318 208 308 208 290 Z" fill="#f4f2ec"/>
     <path d="M240 280 q16 -10 32 0 q-4 16 -16 18 q-12 -2 -16 -18 Z" fill="#1b1b1b"/>
+    <!-- face scars -->
+    <path d="M206 232 l26 34" fill="none" stroke="#c8402c" stroke-width="4"/>
+    <path d="M210 244 l8 -4 M216 252 l8 -4 M222 260 l8 -4" fill="none" stroke="#1b1b1b" stroke-width="2.5"/>
+    <path d="M290 296 l10 6" fill="none" stroke="#c8402c" stroke-width="3"/>
     <!-- smirk -->
     <path d="M236 306 q18 8 40 -4" fill="none" stroke-width="5"/>
     
