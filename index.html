@@ -403,14 +403,14 @@ function shareFor(n){const p=PROF[n]||{};return Object.assign({},DEFSHARE,p.shar
 function chips(t,cls){const a=(t||"").split(",").map(x=>x.trim()).filter(Boolean);return a.length?`<div class="chips ${cls||""}">${a.map(x=>`<span>${esc(x)}</span>`).join("")}</div>`:""}
 function renderTeam(){if(!$("teamList"))return;if(editP&&document.activeElement&&document.activeElement.closest&&document.activeElement.closest("[data-prof]"))return;
  const TN=[...new Set([...CREW.names,...Object.keys(PROF)])];$("teamList").innerHTML=TN.map(n=>{const p=PROF[n]||{},sh=shareFor(n),can=me&&(me===n||isMgr()),ed=editP===n,mgr=CREW.managers.includes(n);
-  const av=p.photo?`<img class="av" src="${esc(p.photo)}" alt="${esc(n)}">`:`<div class="av">${esc(n[0]||"?")}</div>`;
+  const av=(p.photo||p.gphoto)?`<img class="av" src="${esc(p.photo||p.gphoto)}" alt="${esc(n)}" referrerpolicy="no-referrer">`:`<div class="av">${esc(n[0]||"?")}</div>`;
   if(ed)return `<article class="tc"><div class="hd">${av}<h3>${esc(n)}</h3></div><form data-prof="${esc(n)}" style="display:flex;flex-direction:column;gap:8px">
-   <label>About me<textarea name="about" rows="2" placeholder="Where you're from, how long you're here">${esc(p.about||"")}</textarea></label>
+   <label>Short bio<textarea name="about" rows="2" maxlength="280" placeholder="A line or two: where you're from, how long you're here, what you love about Charlie's">${esc(p.about||"")}</textarea></label>
    <label>Skills (comma between each)<input name="skills" value="${esc(p.skills||"")}" placeholder="e.g. barista, photos, cooking, carpentry"></label>
    <label>Interests (comma between each)<input name="interests" value="${esc(p.interests||"")}" placeholder="e.g. surfing, hiking, music"></label>
-   ${isMgr()?`<label>In charge of<input name="owns" value="${esc(p.owns||"")}" placeholder="e.g. Social media"></label><div class="row3"><label>Shifts a day<input name="sh_shift" type="number" min="0" value="${sh.shift}"></label><label>Social a day<input name="sh_social" type="number" min="0" value="${sh.social}"></label><label>Cleaning a day<input name="sh_clean" type="number" min="0" value="${sh.clean}"></label></div>`:""}
+   ${isMgr()?`<label>Role<input name="owns" value="${esc(p.owns||"")}" placeholder="e.g. Marketing (socials and local networking)"></label><div class="row3"><label>Shifts a day<input name="sh_shift" type="number" min="0" value="${sh.shift}"></label><label>Social a day<input name="sh_social" type="number" min="0" value="${sh.social}"></label><label>Cleaning a day<input name="sh_clean" type="number" min="0" value="${sh.clean}"></label></div>`:""}
    <div class="btns"><button type="button" class="b" data-pphoto="${esc(n)}">${p.photo?"Change photo":"Add photo"}</button><button class="b go" type="submit">Save</button><button type="button" class="b" data-pcancel="1">Cancel</button></div></form></article>`;
-  return `<article class="tc"><div class="hd">${av}<div><h3>${esc(n)}</h3>${mgr?`<div class="own">Manager</div>`:""}${p.owns?`<div class="own">In charge of: ${esc(p.owns)}</div>`:""}</div></div>
+  return `<article class="tc"><div class="hd">${av}<div><h3>${esc(n)}</h3>${mgr?`<div class="own">Manager</div>`:""}${p.owns?`<div class="own">${esc(p.owns)}</div>`:""}</div></div>
   ${p.about?`<p class="d" style="margin:0">${esc(p.about)}</p>`:""}${p.skills?`<b style="font-size:13px">Skills</b>${chips(p.skills,"sk")}`:""}${p.interests?`<b style="font-size:13px">Into</b>${chips(p.interests)}`:""}
   ${!p.about&&!p.skills&&!p.interests?`<p class="note" style="margin:0">${me===n?"Tap Edit and tell the crew a bit about you.":"Nothing added yet."}</p>`:""}
   <div class="note" style="margin:0;font-size:13px">Daily share: ${sh.shift} shift · ${sh.social} social · ${sh.clean} cleaning</div>
@@ -425,12 +425,12 @@ document.addEventListener("submit",async e=>{const f=e.target.closest("[data-pro
  if(profPhoto)d.photo=profPhoto;
  if(await write(db.doc("profiles/"+pkey(n)),"set",Object.assign({},PROF[n]||{},d))){editP=null;profPhoto=null;status("Saved")}});
 function weekPosts(){const cut=new Date(Date.now()-7*864e5).toISOString();return POSTS.filter(p=>(p.at||"")>=cut)}
-function renderSocial(){if(!$("socialBox"))return;const owner=SOC.owner||Object.keys(PROF).find(n=>/social/i.test(PROF[n].owns||""))||"";const T=Object.assign({posts:5,reels:2},SOC.targets||{});
+function renderSocial(){if(!$("socialBox"))return;const owner=SOC.owner||Object.keys(PROF).find(n=>/social|marketing/i.test(PROF[n].owns||""))||"";const T=Object.assign({posts:5,reels:2},SOC.targets||{});
  const wp=weekPosts(),posts=wp.length,reels=wp.filter(p=>p.type==="Reel").length,mine=owner?wp.filter(p=>p.by===owner).length:0;
  const lim=dkey(new Date(Date.now()-7*864e5));const adv=Object.entries(EVS).filter(([,e])=>e.kind==="adventure"&&(e.date||"")>=lim&&(e.date||"")<=TODAY);
  const covered=adv.filter(([id])=>wp.some(p=>p.event===id)||(TALK["coming:"+id]||[]).some(x=>x.type!=="msg")).length;
  const bar=(n,t)=>`<span class="sbar"><i style="width:${Math.min(100,t?n/t*100:0)}%"></i></span>`;
- $("socialBox").innerHTML=`<h2>📣 Social media${owner?` · ${esc(owner)}'s in charge`:""}</h2><p class="note" style="margin:0 0 6px">${owner?esc(owner)+" owns our socials, but everyone can post. Every post below counts towards the targets.":"No one's in charge yet. Set it on a Team card."}</p>
+ $("socialBox").innerHTML=`<h2>📣 Marketing${owner?` · ${esc(owner)}'s in charge`:""}</h2><p class="note" style="margin:0 0 6px">${owner?esc(owner)+" runs marketing: our socials and local networking. Everyone can still post. Every post below counts towards the targets.":"No one's in charge yet. Set it on a Team card."}</p>
  <div class="srow"><span>Posts this week</span>${bar(posts,T.posts)}<span>${posts}/${T.posts}</span></div>
  <div class="srow"><span>Reels this week</span>${bar(reels,T.reels)}<span>${reels}/${T.reels}</span></div>
  <div class="srow"><span>Trips covered</span>${bar(covered,adv.length||1)}<span>${adv.length?covered+"/"+adv.length:"none this week"}</span></div>
@@ -592,7 +592,7 @@ function start(){
  on(db.collection("coming"),s=>{EVS={};s.docs.forEach(d=>EVS[d.id]=d.data());watchTalk();render()});
  on(db.collection("ads"),s=>{ADS={};s.docs.forEach(d=>ADS[d.id]=d.data());render()});
  on(db.doc("settings/reviews"),s=>{REVS=s.exists?s.data():{};render()});
- on(db.collection("profiles"),s=>{PROF={};s.docs.forEach(d=>{const x=d.data();if(x.name)PROF[x.name]=x});render()});
+ on(db.collection("profiles"),s=>{PROF={};s.docs.forEach(d=>{const x=d.data();if(x.name)PROF[x.name]=x});if(!s.metadata.fromCache&&me&&AUTHU&&AUTHU.photoURL&&!(PROF[me]||{}).gphoto)db.doc("profiles/"+pkey(me)).set({name:me,gphoto:AUTHU.photoURL},{merge:true}).catch(()=>{});render()});
  on(db.doc("settings/social"),s=>{SOC=s.exists?s.data():{};render()});
  on(db.collection("reviews").orderBy("date","desc").limit(40),s=>{RFEED=s.docs.map(d=>Object.assign({id:d.id},d.data()));render()});
  on(db.doc("settings/phone"),s=>{PHONE=s.exists?s.data():{};render()});
