@@ -379,7 +379,7 @@ function revAvg(){let t=0,n=0,u=0;const rows=[];PLATS.forEach(([p,out])=>{const 
 function renderRevForm(){if(!$("revRows")||document.activeElement&&document.activeElement.closest&&document.activeElement.closest("#revForm"))return;$("revRows").innerHTML=PLATS.map(([p,out])=>{const r=(REVS.platforms||{})[p]||{};return `<label>${p} score (out of ${out})<input data-rp="${p}" data-rk="rating" type="number" min="0" max="${out}" step="0.1" value="${r.rating??""}"></label><label>${p} no. of reviews<input data-rp="${p}" data-rk="count" type="number" min="0" value="${r.count??""}"></label>`}).join("")}
 function newRevs(){const cur=(REVS.platforms||{});const tot=o=>Object.values(o).reduce((t,x)=>t+(+((x&&x.count)??x)||0),0);const now=tot(cur);if(!now)return null;
  const lim=new Date(Date.now()-7*864e5);const lk=dkey(lim);const snaps=Object.keys(STATS).filter(d=>STATS[d].revCounts).sort();if(!snaps.length)return null;
- const base=snaps.filter(d=>d<=lk).pop()||snaps[0];const per={};Object.entries(cur).forEach(([p,x])=>{const b=STATS[base].revCounts[p];if(b!=null&&x&&x.count!=null)per[p]=x.count-b});
+ const base=snaps.filter(d=>d<=lk).pop()||snaps[0];if(base===TODAY)return null;const per={};Object.entries(cur).forEach(([p,x])=>{const b=STATS[base].revCounts[p];if(b!=null&&x&&x.count!=null)per[p]=x.count-b});
  return{n:Object.values(per).reduce((a,b)=>a+Math.max(0,b),0),since:base,full:base<=lk,per}}
 function renderScore(){
  const days=Object.keys(STATS).sort().reverse();
