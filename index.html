@@ -199,6 +199,7 @@ table.st th{font-size:13px;color:var(--muted)}
 <div class="tabname" id="tabName">Today's board</div>
 <main>
  <section id="v-board">
+  <div class="share" id="phoneBox" style="border-color:var(--teal2)"></div>
   <div class="share" id="share"></div>
   <div class="score" id="score"></div>
   <section class="hand"><h2>Handover</h2><div id="notes"><p class="note" style="margin:0">No notes yet today.</p></div><form id="addNote"><textarea id="noteTxt" rows="2" placeholder="Anything the next person should know? Guest issues, things broken, what's left to do." aria-label="Handover note"></textarea><button class="b go" type="submit">Post</button></form></section>
@@ -353,6 +354,7 @@ function render(){
  $("notes").innerHTML=NOTES.length?NOTES.slice(0,6).map(n=>`<div class="hn">${esc(n.text)}<small>${esc(byN(n.by)||"")} · ${esc(new Date(n.at).toLocaleString("en-AU",{weekday:"short",hour:"numeric",minute:"2-digit"}))}</small></div>`).join(""):`<p class="note" style="margin:0">No handover notes yet.</p>`;
  renderScore();
  renderTeam();
+ renderPhone();
  renderSocial();
  renderRevForm();
  renderRevFeed();
@@ -450,6 +452,18 @@ function stars(r,o){const s5=Math.round((+r/(+o||5))*5);return "★".repeat(s5)+
 function renderRevFeed(){if(!$("revFeed"))return;const L=RFEED.slice(0,15);
  $("revFeed").innerHTML=`<h2>Latest reviews</h2><p class="note" style="margin:0 0 6px">Every new review on every site. Anything under 3 stars needs a reply from a manager.</p>${L.length?L.map(r=>{const bad=(+r.rating/(+r.outOf||5))*5<3;return `<div class="hn"${bad&&!r.replied?' style="border-left:4px solid var(--coral);padding-left:8px"':""}><b>${esc(r.site)} · <span class="${bad?"down":(+r.rating/(+r.outOf||5))*5>=4.5?"up":"mid"}">${stars(r.rating,r.outOf)}</span> ${esc(r.name||"")}</b>${r.text?`<br>${esc(r.text)}`:""}<small>${esc(fmtDate((r.date||"").slice(0,10)))}${bad?(r.replied?" · replied ✓":" · needs a reply"):""}${r.link?` · <a href="${esc(r.link)}" target="_blank" rel="noopener">Open</a>`:""}${bad&&!r.replied&&isMgr()?` · <button type="button" class="b" style="padding:2px 8px;font-size:12px;min-height:26px" data-rrep="${esc(r.id)}">Mark replied</button>`:""}</small></div>`}).join(""):`<p class="note" style="margin:0">No reviews logged yet.</p>`}`}
 document.addEventListener("click",async e=>{const b=e.target.closest("[data-rrep]");if(!b||!db)return;await write(db.doc("reviews/"+b.dataset.rrep),"update",{replied:true,repliedBy:me||"",repliedAt:new Date().toISOString()})});
+let PHONE={},CALLS=[];
+function ago(iso){if(!iso)return"";const m=Math.round((Date.now()-new Date(iso))/6e4);return m<60?m+" min":m<1440?Math.round(m/60)+" hr":Math.round(m/1440)+" days"}
+function renderPhone(){if(!$("phoneBox"))return;const h=PHONE.holder,since=PHONE.since,mine=me&&h===me;
+ const today=CALLS.filter(c=>(c.at||"").slice(0,10)===TODAY||new Date(c.at).toDateString()===new Date().toDateString());
+ const missed=today.filter(c=>c.status==="missed"),ans=today.filter(c=>c.status==="answered");
+ const byH={};today.forEach(c=>{const k=c.holder||"no one";byH[k]=byH[k]||{a:0,m:0};c.status==="missed"?byH[k].m++:byH[k].a++});
+ $("phoneBox").innerHTML=`<b>📞 Reception phone</b><span class="need${h?" met":""}">${h?esc(h)+" has it · "+ago(since):"No one has it!"}</span>${mine?`<button type="button" class="b" data-ph="drop">Hand it back</button>`:`<button type="button" class="b sun" data-ph="take">I've got the phone</button>`}
+ <span class="note" style="margin:0">${today.length?`Today: ${ans.length} answered · <span class="${missed.length?"down":""}">${missed.length} missed</span>${Object.keys(byH).length?" · "+Object.entries(byH).map(([n,v])=>esc(n)+" "+v.a+"✓"+(v.m?" "+v.m+"✗":"")).join(", "):""}`:"Calls show here once the phone is connected."}</span>
+ ${missed.length&&isMgr()?`<span class="note down" style="margin:0;width:100%">Missed: ${missed.slice(0,5).map(c=>esc(new Date(c.at).toLocaleTimeString("en-AU",{hour:"numeric",minute:"2-digit"}))+(c.number?" ("+esc(c.number)+")":"")+(c.holder?" – "+esc(c.holder)+" had it":"")).join(", ")}</span>`:""}`}
+document.addEventListener("click",async e=>{const b=e.target.closest("[data-ph]");if(!b||!db)return;if(!me){askName();return}const now=new Date().toISOString();
+ if(b.dataset.ph==="take"){if(await write(db.doc("settings/phone"),"set",{holder:me,since:now}))await write(db.collection("phonelog").doc("h"+Date.now().toString(36)),"set",{holder:me,action:"took",at:now})}
+ else{if(await write(db.doc("settings/phone"),"set",{holder:"",since:now}))await write(db.collection("phonelog").doc("h"+Date.now().toString(36)),"set",{holder:me,action:"handed back",at:now})}});
 function renderScore(){
  const days=Object.keys(STATS).sort().reverse();
  const last=days.map(d=>[d,STATS[d]]).find(([,s])=>s.beds!=null&&s.total);
@@ -576,6 +590,8 @@ function start(){
  on(db.collection("profiles"),s=>{PROF={};s.docs.forEach(d=>{const x=d.data();if(x.name)PROF[x.name]=x});render()});
  on(db.doc("settings/social"),s=>{SOC=s.exists?s.data():{};render()});
  on(db.collection("reviews").orderBy("date","desc").limit(40),s=>{RFEED=s.docs.map(d=>Object.assign({id:d.id},d.data()));render()});
+ on(db.doc("settings/phone"),s=>{PHONE=s.exists?s.data():{};render()});
+ on(db.collection("calls").orderBy("at","desc").limit(100),s=>{CALLS=s.docs.map(d=>d.data());render()});
  on(db.collection("maint"),s=>{MT={};s.docs.forEach(d=>MT[d.id]=d.data());render()});
  on(db.collection("maintdone").where(firebase.firestore.FieldPath.documentId(),">=",dkey(new Date(Date.now()-60*864e5))),s=>{MD={};s.docs.forEach(d=>MD[d.id]=d.data());render()});
  on(db.collection("fixes").orderBy("at","desc").limit(40),s=>{FIX=s.docs.map(d=>Object.assign({id:d.id},d.data()));render()});
