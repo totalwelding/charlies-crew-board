@@ -32,8 +32,11 @@ button{cursor:pointer}
 .tabs{display:flex;gap:4px;overflow-x:auto;max-width:1100px;margin:16px auto 0}
 .tabs button{border:0;background:transparent;color:#fff;opacity:.75;padding:12px 16px;border-radius:12px 12px 0 0;font-weight:700;min-height:44px}
 .tabs button.on{background:var(--bg);color:var(--ink);opacity:1}
-.tabs .ti{margin-right:6px}.tabs .ts{display:none}
-@media(max-width:700px){.tabs{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:2px;overflow:visible}.tabs button{padding:8px 2px 6px;display:flex;flex-direction:column;align-items:center;gap:2px;min-height:56px}.tabs .ti{font-size:22px;line-height:1;margin:0}.tabs .tl{display:none}.tabs .ts{display:block;font-size:11px;line-height:1.1;white-space:nowrap}}
+.tabs{display:grid;grid-template-columns:repeat(6,minmax(0,84px));gap:4px;overflow:visible;max-width:1100px;margin:16px auto 0}
+@media(max-width:600px){.tabs{grid-template-columns:repeat(6,minmax(0,1fr))}}
+.tabs button{padding:8px 0;display:flex;align-items:center;justify-content:center;min-height:52px}
+.tabs .ti{font-size:26px;line-height:1}.tabs .tl,.tabs .ts{display:none}
+.tabname{max-width:1100px;margin:0 auto;padding:14px max(4vw,14px) 0;font:600 22px Fredoka,sans-serif}
 main{max-width:1100px;margin:0 auto;padding:20px max(4vw,14px) 60px}
 .note{color:var(--muted);font-size:14px;margin:0 0 14px}
 .slots{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:18px;align-items:start}
@@ -173,14 +176,15 @@ table.st th{font-size:13px;color:var(--muted)}
   <div class="me"><span id="meName">Who are you?</span><button type="button" id="meBtn">Pick name</button></div>
  </div>
  <nav class="tabs" role="tablist">
-  <button type="button" class="on" data-tab="board" role="tab" aria-label="Today's board"><span class="ti" aria-hidden="true">📋</span><span class="tl">Today's board</span><span class="ts">Today</span></button>
-  <button type="button" data-tab="coming" role="tab" aria-label="What's coming up"><span class="ti" aria-hidden="true">🎉</span><span class="tl">What's coming up</span><span class="ts">Coming up</span></button>
-  <button type="button" data-tab="jobs" role="tab" aria-label="Job list"><span class="ti" aria-hidden="true">✅</span><span class="tl">Job list</span><span class="ts">Jobs</span></button>
-  <button type="button" data-tab="cal" role="tab" aria-label="Calendar"><span class="ti" aria-hidden="true">📅</span><span class="tl">Calendar</span><span class="ts">Calendar</span></button>
-  <button type="button" data-tab="maint" role="tab" aria-label="Maintenance"><span class="ti" aria-hidden="true">🔧</span><span class="tl">Maintenance</span><span class="ts">Fix-it</span></button>
-  <button type="button" data-tab="score" role="tab" aria-label="Scoreboard"><span class="ti" aria-hidden="true">📊</span><span class="tl">Scoreboard</span><span class="ts">Score</span></button>
+  <button type="button" class="on" data-tab="board" role="tab" aria-label="Today's board" title="Today's board"><span class="ti" aria-hidden="true">📋</span><span class="tl">Today's board</span><span class="ts">Today</span></button>
+  <button type="button" data-tab="coming" role="tab" aria-label="What's coming up" title="What's coming up"><span class="ti" aria-hidden="true">🎉</span><span class="tl">What's coming up</span><span class="ts">Coming up</span></button>
+  <button type="button" data-tab="jobs" role="tab" aria-label="Job list" title="Job list"><span class="ti" aria-hidden="true">✅</span><span class="tl">Job list</span><span class="ts">Jobs</span></button>
+  <button type="button" data-tab="cal" role="tab" aria-label="Calendar" title="Calendar"><span class="ti" aria-hidden="true">📅</span><span class="tl">Calendar</span><span class="ts">Calendar</span></button>
+  <button type="button" data-tab="maint" role="tab" aria-label="Maintenance" title="Maintenance"><span class="ti" aria-hidden="true">🔧</span><span class="tl">Maintenance</span><span class="ts">Fix-it</span></button>
+  <button type="button" data-tab="score" role="tab" aria-label="Scoreboard" title="Scoreboard"><span class="ti" aria-hidden="true">📊</span><span class="tl">Scoreboard</span><span class="ts">Score</span></button>
  </nav>
 </header>
+<div class="tabname" id="tabName">Today's board</div>
 <main>
  <section id="v-board">
   <div class="share" id="share"></div>
@@ -255,7 +259,7 @@ const isMgr=()=>me&&CREW.managers.includes(me);
 let stT;function status(m,ms=2600){const s=$("status");s.textContent=m;s.style.display="block";clearTimeout(stT);if(ms)stT=setTimeout(()=>s.style.display="none",ms)}
 function askName(){if(!AUTHU)doSignIn();else status("Ask Luke to let you onto the crew.")}
 $("meBtn").addEventListener("click",()=>{if(AUTHU&&confirm("Sign out?"))firebase.auth().signOut()});
-document.querySelector(".tabs").addEventListener("click",e=>{const b=e.target.closest("[data-tab]");if(!b)return;document.querySelectorAll(".tabs button").forEach(x=>x.classList.toggle("on",x===b));["board","coming","jobs","cal","maint","score"].forEach(t=>$("v-"+t).hidden=t!==b.dataset.tab)});
+document.querySelector(".tabs").addEventListener("click",e=>{const b=e.target.closest("[data-tab]");if(!b)return;$("tabName").textContent=b.getAttribute("aria-label");document.querySelectorAll(".tabs button").forEach(x=>x.classList.toggle("on",x===b));["board","coming","jobs","cal","maint","score"].forEach(t=>$("v-"+t).hidden=t!==b.dataset.tab)});
 function recentPast(){const lim=new Date(Date.now()-14*864e5).toISOString().slice(0,10);return Object.entries(EVS).map(([id,e])=>({id,...e})).filter(e=>(e.date||"")<TODAY&&(e.date||"")>=lim).sort((a,b)=>(b.date||"").localeCompare(a.date||""))}
 function upcoming(){const now=TODAY;return Object.entries(EVS).map(([id,e])=>({id,...e})).filter(e=>(e.date||"")>=now).sort((a,b)=>(a.date||"").localeCompare(b.date||"")||(a.time||"").localeCompare(b.time||""))}
 const CATN={shift:"Shift",social:"Social",clean:"Cleaning",other:"Other"};
