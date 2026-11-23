@@ -545,7 +545,7 @@ render();
 firebase.initializeApp({apiKey:"AIzaSyAhwpD274QsIxuR5-7AGbXWcsKGIgQHkIM",authDomain:"charlies-crew-board.firebaseapp.com",projectId:"charlies-crew-board",storageBucket:"charlies-crew-board.firebasestorage.app",messagingSenderId:"424591665915",appId:"1:424591665915:web:0db1e8e5a84a8fd8091e5e"});
 const FDB=firebase.firestore();
 try{FDB.enablePersistence({synchronizeTabs:true}).catch(()=>{})}catch(e){}
-function doSignIn(){const p=new firebase.auth.GoogleAuthProvider();p.setCustomParameters({prompt:"select_account"});firebase.auth().signInWithPopup(p).catch(e=>{if(e&&/popup/.test(e.code||""))firebase.auth().signInWithRedirect(p);else status("Sign-in didn't work. Try again.",5000)})}
+function doSignIn(){const p=new firebase.auth.GoogleAuthProvider();p.setCustomParameters({prompt:"select_account"});firebase.auth().signInWithPopup(p).catch(e=>{const c=(e&&e.code)||"";if(/popup-closed|cancelled-popup/.test(c))return;$("gateMsg").innerHTML="Sign-in got blocked. Open this link in <b>Chrome</b> (not inside WhatsApp, Messenger or email): tap ⋮ then <b>Open in Chrome</b>, then try again."+(c?"<br><small>("+esc(c)+")</small>":"")})}
 $("signIn").addEventListener("click",doSignIn);
 $("signOut2").addEventListener("click",e=>{e.preventDefault();firebase.auth().signOut()});
 const emailOf=u=>(u&&u.email||"").toLowerCase();
