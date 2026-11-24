@@ -160,6 +160,12 @@ table.st th{font-size:13px;color:var(--muted)}
 .mform{display:grid;grid-template-columns:minmax(0,2fr) auto auto;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px}.mform textarea,.mform #mNote{grid-column:1/-1}.mform button{grid-column:1/-1;justify-self:start}
 @media(max-width:600px){.mform{grid-template-columns:minmax(0,1fr)}}
 .fx{display:flex;gap:8px;align-items:center;flex-wrap:wrap;border-top:1px solid var(--line);padding:8px 0}.fx:first-child{border-top:0}.fx div{flex:1 1 200px}.fx small{display:block;color:var(--muted);font-size:13px}
+.vform{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px}.vform .full{grid-column:1/-1}.vform label{font-size:13px;font-weight:700;color:var(--muted);display:flex;flex-direction:column;gap:4px}
+@media(max-width:600px){.vform{grid-template-columns:minmax(0,1fr)}}
+.vc{background:var(--card);border:1px solid var(--line);border-left:6px solid var(--vcol,#a39e8a);border-radius:14px;padding:12px;margin-bottom:10px}.vc h3{margin:0;font:600 18px Fredoka,sans-serif}.vc small{color:var(--muted)}.vc .vn{border-top:1px dashed var(--line);margin-top:8px;padding-top:6px;font-size:14px}.vc .vn p{margin:4px 0}
+.vs-applied{--vcol:#f6b04a}.vs-talking{--vcol:#7aa7e0}.vs-confirmed{--vcol:#38b2a3}.vs-here{--vcol:#2e8b57}.vs-left{--vcol:#a39e8a}.vs-no{--vcol:#d9776a}
+.it.vapplied{background:#ffe7c2;color:#5a3600}.it.vtalking{background:#dbe7f7;color:#1d3557}.it.vconfirmed{background:#cdeee9;color:#0b3d39}.it.vhere{background:#cfe9d7;color:#14462a}
+.dot.vapplied{background:#f6b04a}.dot.vtalking{background:#7aa7e0}.dot.vconfirmed{background:#38b2a3}.dot.vhere{background:#2e8b57}
 .mgrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
 .mgrid .hd{font:700 12px "Nunito Sans",sans-serif;color:var(--muted);text-align:center;padding:4px 0}
 .mc{background:var(--card);border:1px solid var(--line);border-radius:10px;min-height:74px;padding:4px 5px;text-align:left;display:flex;flex-direction:column;gap:2px;font-size:11.5px;line-height:1.2;overflow:hidden}
@@ -193,6 +199,7 @@ table.st th{font-size:13px;color:var(--muted)}
   <button type="button" data-tab="cal" role="tab" aria-label="Calendar" title="Calendar"><span class="ti" aria-hidden="true">📅</span><span class="tl">Calendar</span><span class="ts">Calendar</span></button>
   <button type="button" data-tab="maint" role="tab" aria-label="Maintenance" title="Maintenance"><span class="ti" aria-hidden="true">🔧</span><span class="tl">Maintenance</span><span class="ts">Fix-it</span></button>
   <button type="button" data-tab="team" role="tab" aria-label="Team" title="Team"><span class="ti" aria-hidden="true">👥</span><span class="tl">Team</span><span class="ts">Team</span></button>
+  <button type="button" data-tab="vols" role="tab" aria-label="Volunteers (managers)" title="Volunteers (managers)" hidden id="volTab"><span class="ti" aria-hidden="true">🙋</span><span class="tl">Volunteers</span><span class="ts">Vols</span></button>
   <button type="button" data-tab="score" role="tab" aria-label="Scoreboard" title="Scoreboard"><span class="ti" aria-hidden="true">📊</span><span class="tl">Scoreboard</span><span class="ts">Score</span></button>
  </nav>
 </header>
@@ -248,6 +255,29 @@ table.st th{font-size:13px;color:var(--muted)}
   <p class="note">Get to know the crew. Add a bit about yourself, what you're good at and what you're into, so we can match jobs and trips to people. Tap Edit on your own card.</p>
   <div class="tgrid" id="teamList"></div>
  </section>
+ <section id="v-vols" hidden>
+  <p class="note">Managers only. Who's applied, who's coming, who's here and when they leave, plus notes on each person. Tap a day to see who's around.</p>
+  <div class="wk"><button type="button" class="b" data-vmo="-1" aria-label="Last month">‹</button><b id="vMoLbl"></b><button type="button" class="b" data-vmo="1" aria-label="Next month">›</button><button type="button" class="b" data-vmo="0">Today</button></div>
+  <div class="legend"><span><i class="dot vapplied"></i>Applied</span><span><i class="dot vtalking"></i>Talking</span><span><i class="dot vconfirmed"></i>Confirmed</span><span><i class="dot vhere"></i>Here now</span></div>
+  <div class="mgrid" id="vGrid"></div>
+  <section class="hand" id="vDayBox" style="margin-top:14px"></section>
+  <section class="hand"><h2>Manager notes</h2><p class="note" style="margin:0 0 8px">General notes about volunteers: what's working, who needs a chat, what we need more of.</p><div id="vNotes"><p class="note" style="margin:0">No notes yet.</p></div><form id="addVNote" style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;margin-top:8px"><textarea id="vNoteTxt" rows="2" placeholder="e.g. Need 2 more for December, someone good on the bar" aria-label="Manager note"></textarea><button class="b go" type="submit">Post</button></form></section>
+  <div class="filters" id="vFilt"></div>
+  <div id="vList"></div>
+  <h2 style="margin:22px 0 8px;font-size:20px" id="vFormH">Add a volunteer</h2>
+  <form class="vform" id="vForm"><input type="hidden" id="vId">
+   <label>Name<input id="vName" required placeholder="Full name"></label>
+   <label>Status<select id="vStatus"><option value="applied">Applied</option><option value="talking">Talking / replied</option><option value="confirmed">Confirmed</option><option value="here">Here now</option><option value="left">Left</option><option value="no">Not a fit</option></select></label>
+   <label>Arrives<input id="vFrom" type="date"></label>
+   <label>Leaves<input id="vTo" type="date"></label>
+   <label>From (country)<input id="vCountry" placeholder="e.g. Canada"></label>
+   <label>Found us via<input id="vSource" placeholder="e.g. Backpacker Job Board, email, Workaway"></label>
+   <label class="full">Contact<input id="vContact" placeholder="Email and/or phone"></label>
+   <label class="full">Good at / wants to do<input id="vSkills" placeholder="e.g. reception, bar, cleaning, social media"></label>
+   <label class="full">Add a note<textarea id="vNote" rows="2" placeholder="Anything worth knowing (optional)"></textarea></label>
+   <div class="btns full"><button class="b go" type="submit">Save</button><button class="b" type="button" id="vCancel" hidden>Cancel edit</button></div>
+  </form>
+ </section>
  <section id="v-score" hidden>
   <p class="note">What we're measured on: beds filled, good reviews and bar sales. These fill in automatically: paid beds (volunteer, staff and blocked beds don't count), check-ins and check-outs from Cloudbeds, review scores from each booking site, and bar sales from the Whoods daily report. Managers only need the form below to fix a day.</p>
   <form class="statform" id="statForm"><label>Date<input id="sDate" type="date"></label><label>Beds sold tonight<input id="sBeds" type="number" min="0" inputmode="numeric"></label><label>Beds available<input id="sTotal" type="number" min="1" inputmode="numeric"></label><label>Check-ins<input id="sIn" type="number" min="0" inputmode="numeric"></label><label>Check-outs<input id="sOut" type="number" min="0" inputmode="numeric"></label><label>New reviews<input id="sRev" type="number" min="0" inputmode="numeric"></label><label>Their average score<input id="sRate" type="number" min="0" max="10" step="0.1" inputmode="decimal"></label><label>Bar sales ($)<input id="sBar" type="number" min="0" step="1" inputmode="decimal"></label><button class="b go" type="submit" style="align-self:end">Save day</button></form>
@@ -278,7 +308,7 @@ const isMgr=()=>me&&CREW.managers.includes(me);
 let stT;function status(m,ms=2600){const s=$("status");s.textContent=m;s.style.display="block";clearTimeout(stT);if(ms)stT=setTimeout(()=>s.style.display="none",ms)}
 function askName(){if(!AUTHU)doSignIn();else status("Ask Luke to let you onto the crew.")}
 $("meBtn").addEventListener("click",()=>{if(SHARED){try{localStorage.removeItem("sharedWho")}catch(e){}me=null;pickWho();return}if(AUTHU&&confirm("Sign out?"))firebase.auth().signOut()});
-document.querySelector(".tabs").addEventListener("click",e=>{const b=e.target.closest("[data-tab]");if(!b)return;$("tabName").textContent=b.getAttribute("aria-label");document.querySelectorAll(".tabs button").forEach(x=>x.classList.toggle("on",x===b));["board","coming","jobs","cal","maint","team","score"].forEach(t=>$("v-"+t).hidden=t!==b.dataset.tab)});
+document.querySelector(".tabs").addEventListener("click",e=>{const b=e.target.closest("[data-tab]");if(!b)return;$("tabName").textContent=b.getAttribute("aria-label");document.querySelectorAll(".tabs button").forEach(x=>x.classList.toggle("on",x===b));["board","coming","jobs","cal","maint","team","vols","score"].forEach(t=>$("v-"+t).hidden=t!==b.dataset.tab)});
 function recentPast(){const lim=new Date(Date.now()-14*864e5).toISOString().slice(0,10);return Object.entries(EVS).map(([id,e])=>({id,...e})).filter(e=>(e.date||"")<TODAY&&(e.date||"")>=lim).sort((a,b)=>(b.date||"").localeCompare(a.date||""))}
 function upcoming(){const now=TODAY;return Object.entries(EVS).map(([id,e])=>({id,...e})).filter(e=>(e.date||"")>=now).sort((a,b)=>(a.date||"").localeCompare(b.date||"")||(a.time||"").localeCompare(b.time||""))}
 const CATN={shift:"Shift",social:"Social",clean:"Cleaning",other:"Other"};
@@ -328,7 +358,7 @@ function jobCard(id,j){
  if(rec){const u=upcoming().slice(0,4);talk=u.length?`<div class="talk"><b>Chat to guests about</b><ul>${u.map(e=>`<li>${esc(fmtDate(e.date))}${e.time?" "+esc(fmtT(e.time)):""}: ${esc(e.title)}</li>`).join("")}</ul></div>`:""}
  return `<article class="card${rec?" rec":""}${!j.owner&&!j.done?" open":""}${j.done?" done":""}"><div class="t">${j.time?`<span class="time">${esc(fmtT(j.time))}</span>`:""}${esc(j.title)}<span class="cat ${esc(catOf(j))}">${CATN[catOf(j)]}</span></div>${j.note?`<p class="d">${esc(j.note)}</p>`:""}${talk}${j.redo?`<p class="d" style="color:var(--coral)">Needs another go${j.redoBy?" ("+esc(j.redoBy)+")":""}</p>`:""}${j.photo?`<img class="ph" src="${esc(j.photo)}" alt="Photo of ${esc(j.title)} when done">${keepBtn("job|"+id)}`:""}<div>${who}</div>${st}${b.length?`<div class="btns">${b.join("")}</div>`:""}</article>`;
 }
-function render(){
+function render(){try{volTabUI()}catch(e){}
  const list=Object.entries(JOBS).sort((a,b)=>mins(a[1].time)-mins(b[1].time)||(a[1].order??99)-(b[1].order??99));
  const sl=list.filter(([,j])=>!j.multi),n=sl.length,done=sl.filter(([,j])=>j.done).length,taken=sl.filter(([,j])=>j.owner||j.done).length;
  $("progBar").style.width=n?Math.round(done/n*100)+"%":"0";
@@ -391,6 +421,46 @@ function renderCal(){if(!$("mGrid"))return;const base=new Date();base.setDate(1)
  $("dayBox").innerHTML=`<h2>${esc(sd.toLocaleDateString("en-AU",{weekday:"long",day:"numeric",month:"long"}))}</h2>${its.length?its.map(x=>x.kind==="maint"?`<div class="hn"><b>🔧 ${esc(x.title)}</b>${x.m.items&&x.m.items.length?`<small>${x.m.items.length} things to tick off · see Maintenance tab</small>`:""}</div>`:`<div class="hn"><b>${x.kind==="adventure"?"🚙":"🍽"} ${esc(x.title)}</b>${x.time?" · "+esc(fmtT(x.time)):""}${x.ev.detail?`<small>${esc(x.ev.detail)}</small>`:""}<small>${(x.ev.going||[]).length?(x.ev.going.length+" going"):"No one in yet"}</small></div>`).join(""):`<p class="note" style="margin:0">Nothing on.</p>`}
  <div class="btns" style="margin-top:10px"><button type="button" class="b" data-cadd="meal">+ Meal</button><button type="button" class="b" data-cadd="adventure">+ Adventure</button>${isMgr()?`<button type="button" class="b" data-cadd="maint">+ Maintenance</button>`:""}</div>`;
 }
+
+/* ---- Volunteers (managers only) ---- */
+let VOLS={},VNOTES=[],vMoOff=0,vSel=TODAY,vFilter="active";
+const VSN={applied:"Applied",talking:"Talking",confirmed:"Confirmed",here:"Here now",left:"Left",no:"Not a fit"};
+function volTabUI(){const t=$("volTab");if(!t)return;t.hidden=!isMgr();if(!isMgr()&&!$("v-vols").hidden){const b=document.querySelector('.tabs [data-tab="board"]');if(b)b.click()}}
+function volsOn(k){return Object.entries(VOLS).map(([id,v])=>({id,...v})).filter(v=>v.from&&!["no","left"].includes(v.status)&&v.from<=k&&(v.to?v.to>=k:v.from===k))}
+function renderVols(){volTabUI();if(!$("vGrid")||!isMgr())return;
+ const base=new Date();base.setDate(1);base.setHours(12,0,0,0);base.setMonth(base.getMonth()+vMoOff);const mo=base.getMonth();
+ $("vMoLbl").textContent=base.toLocaleDateString("en-AU",{month:"long",year:"numeric"});
+ const start=new Date(base);start.setDate(1-((base.getDay()+6)%7));
+ let h=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].map(d=>`<div class="hd">${d}</div>`).join("");
+ for(let i=0;i<42;i++){const dt=new Date(start);dt.setDate(start.getDate()+i);if(i>=35&&dt.getMonth()!==mo)break;const k=dkey(dt),vs=volsOn(k);
+  h+=`<button type="button" class="mc${dt.getMonth()!==mo?" off":""}${k===TODAY?" today":""}${k===vSel?" sel":""}" data-vday="${k}"><span class="n">${dt.getDate()}</span>${vs.slice(0,3).map(v=>`<span class="it v${esc(v.status)}">${v.from===k?"→ ":""}${esc((v.name||"").split(" ")[0])}${v.to===k?" ←":""}</span>`).join("")}${vs.length>3?`<span class="it">+${vs.length-3} more</span>`:""}</button>`}
+ $("vGrid").innerHTML=h;
+ const sd=new Date(vSel+"T12:00:00"),vs=volsOn(vSel),arr=vs.filter(v=>v.from===vSel),lv=vs.filter(v=>v.to===vSel);
+ $("vDayBox").innerHTML=`<h2>${esc(sd.toLocaleDateString("en-AU",{weekday:"long",day:"numeric",month:"long"}))}</h2>${vs.length?`<p style="margin:0 0 6px"><b>${vs.length}</b> volunteer${vs.length>1?"s":""} around${arr.length?` · arriving: ${arr.map(v=>esc(v.name)).join(", ")}`:""}${lv.length?` · leaving: ${lv.map(v=>esc(v.name)).join(", ")}`:""}</p>`+vs.map(v=>`<div class="hn"><b>${esc(v.name)}</b> · ${VSN[v.status]||""}<small>${fmtRange(v)}${v.skills?" · "+esc(v.skills):""}</small></div>`).join(""):`<p class="note" style="margin:0">No volunteers booked in for this day.</p>`}`;
+ $("vNotes").innerHTML=VNOTES.length?VNOTES.map(n=>`<div class="fx"><div>${esc(n.text)}<small>${esc(n.by||"")} · ${esc(new Date(n.at).toLocaleString("en-AU",{day:"numeric",month:"short",hour:"numeric",minute:"2-digit"}))}</small></div><button class="b" type="button" data-vndel="${esc(n.id)}" aria-label="Delete note">✕</button></div>`).join(""):`<p class="note" style="margin:0">No notes yet.</p>`;
+ const F={active:"Active",applied:"Applied",talking:"Talking",confirmed:"Confirmed",here:"Here now",past:"Left / not a fit",all:"All"};
+ $("vFilt").innerHTML=Object.entries(F).map(([k,l])=>`<button type="button" class="chip${vFilter===k?" on":""}" data-vf="${k}">${l}</button>`).join("");
+ const list=Object.entries(VOLS).map(([id,v])=>({id,...v})).filter(v=>vFilter==="all"||(vFilter==="active"?!["left","no"].includes(v.status):vFilter==="past"?["left","no"].includes(v.status):v.status===vFilter)).sort((a,b)=>(a.from||"9999").localeCompare(b.from||"9999"));
+ $("vList").innerHTML=list.length?list.map(v=>`<div class="vc vs-${esc(v.status)}"><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:baseline"><h3>${esc(v.name)}</h3><b>${VSN[v.status]||""}</b></div><small>${fmtRange(v)}${v.country?" · "+esc(v.country):""}${v.source?" · via "+esc(v.source):""}</small>${v.skills?`<div style="margin-top:4px">${esc(v.skills)}</div>`:""}${v.contact?`<div><small>${esc(v.contact)}</small></div>`:""}${(v.notes||[]).length?`<div class="vn">${v.notes.map(n=>`<p>${esc(n.t)} <small>· ${esc(n.by||"")} ${esc((n.at||"").slice(0,10))}</small></p>`).join("")}</div>`:""}<div class="btns" style="margin-top:8px"><button class="b" type="button" data-vedit="${esc(v.id)}">Edit / add note</button>${v.status!=="here"&&!["left","no"].includes(v.status)?`<button class="b" type="button" data-vset="${esc(v.id)}|here">Arrived</button>`:""}${v.status==="here"?`<button class="b" type="button" data-vset="${esc(v.id)}|left">Left</button>`:""}</div></div>`).join(""):`<p class="note">Nobody here yet. Add someone below.</p>`;
+}
+function fmtRange(v){const f=d=>d?new Date(d+"T12:00:00").toLocaleDateString("en-AU",{day:"numeric",month:"short",year:d.slice(0,4)!==TODAY.slice(0,4)?"numeric":undefined}):"";return v.from?(f(v.from)+(v.to?" – "+f(v.to):" onwards")):"Dates not set"}
+function vReset(){["vId","vName","vFrom","vTo","vCountry","vSource","vContact","vSkills","vNote"].forEach(i=>$(i).value="");$("vStatus").value="applied";$("vCancel").hidden=true;$("vFormH").textContent="Add a volunteer"}
+document.addEventListener("click",async e=>{
+ const m=e.target.closest("[data-vmo]");if(m){const v=+m.dataset.vmo;vMoOff=v?vMoOff+v:0;if(!v)vSel=TODAY;renderVols();return}
+ const c=e.target.closest("[data-vday]");if(c){vSel=c.dataset.vday;renderVols();return}
+ const f=e.target.closest("[data-vf]");if(f){vFilter=f.dataset.vf;renderVols();return}
+ const ed=e.target.closest("[data-vedit]");if(ed){const id=ed.dataset.vedit,v=VOLS[id];if(!v)return;$("vId").value=id;$("vName").value=v.name||"";$("vStatus").value=v.status||"applied";$("vFrom").value=v.from||"";$("vTo").value=v.to||"";$("vCountry").value=v.country||"";$("vSource").value=v.source||"";$("vContact").value=v.contact||"";$("vSkills").value=v.skills||"";$("vNote").value="";$("vCancel").hidden=false;$("vFormH").textContent="Edit "+(v.name||"");$("vForm").scrollIntoView({behavior:"smooth"});return}
+ const st=e.target.closest("[data-vset]");if(st){const [id,to]=st.dataset.vset.split("|");try{const upd={status:to,at:new Date().toISOString(),by:me||""};if(to==="here"&&!VOLS[id].from)upd.from=TODAY;if(to==="left")upd.to=TODAY;await FDB.doc("vols/"+id).set(upd,{merge:true});status(to==="here"?"Marked as here":"Marked as left")}catch(err){status("Couldn't save. Managers only.")}return}
+ const nd=e.target.closest("[data-vndel]");if(nd){try{await FDB.doc("volnotes/"+nd.dataset.vndel).delete()}catch(err){status("Couldn't delete that.")}return}
+});
+$("vCancel").addEventListener("click",vReset);
+$("vForm").addEventListener("submit",async e=>{e.preventDefault();if(!isMgr()){status("Managers only.");return}
+ const name=$("vName").value.trim();if(!name){status("Add a name.");return}
+ const from=$("vFrom").value,to=$("vTo").value;if(from&&to&&to<from){status("Leave date is before the arrive date.");return}
+ const id=$("vId").value||("v"+Date.now().toString(36)),old=VOLS[id]||{},note=$("vNote").value.trim();
+ const data={name,status:$("vStatus").value,from,to,country:$("vCountry").value.trim(),source:$("vSource").value.trim(),contact:$("vContact").value.trim(),skills:$("vSkills").value.trim(),notes:(old.notes||[]).concat(note?[{t:note,by:me||"",at:new Date().toISOString()}]:[]),at:new Date().toISOString(),by:me||""};
+ try{await FDB.doc("vols/"+id).set(data);status("Saved");vReset()}catch(err){status("Couldn't save. Managers only.")}});
+$("addVNote").addEventListener("submit",async e=>{e.preventDefault();const t=$("vNoteTxt").value.trim();if(!t)return;try{await FDB.collection("volnotes").add({text:t,by:me||"",at:new Date().toISOString()});$("vNoteTxt").value=""}catch(err){status("Couldn't post. Managers only.")}});
 function goTab(t){const b=document.querySelector(`.tabs [data-tab="${t}"]`);if(b)b.click();window.scrollTo(0,document.body.scrollHeight)}
 document.addEventListener("click",e=>{const m=e.target.closest("[data-mo]");if(m){const v=+m.dataset.mo;moOff=v?moOff+v:0;if(!v)selDay=TODAY;renderCal();return}
  const c=e.target.closest("[data-cday]");if(c){selDay=c.dataset.cday;renderCal();return}
@@ -589,6 +659,8 @@ function start(){
  const fail=e=>{clearTimeout(tmr);console.warn(e)};
  const on=(q,f)=>subs.push(q.onSnapshot(f,fail));
  if(isMgr())on(FDB.collection("requests"),s=>{REQS=s.docs.map(d=>Object.assign({id:d.id},d.data()));renderAccess()});
+ if(isMgr()){on(FDB.collection("vols"),s=>{VOLS={};s.docs.forEach(d=>VOLS[d.id]=d.data());renderVols()});on(FDB.collection("volnotes").orderBy("at","desc").limit(30),s=>{VNOTES=s.docs.map(d=>Object.assign({id:d.id},d.data()));renderVols()})}
+ volTabUI();
  on(db.doc("settings/crew"),s=>{if(s.exists){const d=s.data();CREW=Object.assign({},CREW,{beds:d.beds});if(!$("sTotal").value&&d.beds)$("sTotal").value=d.beds;render()}});
  on(db.collection("templates"),s=>{TPL={};s.docs.forEach(d=>TPL[d.id]=d.data());if(!s.metadata.fromCache){gotTpl=true;seedToday()}render()});
  on(db.collection(`days/${TODAY}/jobs`),s=>{JOBS={};s.docs.forEach(d=>JOBS[d.id]=d.data());if(!s.metadata.fromCache){gotJobs=true;clearTimeout(tmr);seedToday()}render()});

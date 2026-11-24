@@ -26,9 +26,16 @@ service cloud.firestore {
       allow create, update: if request.auth != null && request.auth.uid == uid;
       allow read, delete: if manager() || (request.auth != null && request.auth.uid == uid);
     }
+    // Volunteer calendar and notes: managers only
+    match /vols/{id} {
+      allow read, write: if manager();
+    }
+    match /volnotes/{id} {
+      allow read, write: if manager();
+    }
     // Everything else on the board: crew only
     match /{col}/{rest=**} {
-      allow read, write: if member() && !(col in ['access', 'requests']);
+      allow read, write: if member() && !(col in ['access', 'requests', 'vols', 'volnotes']);
     }
   }
 }
