@@ -33,9 +33,22 @@ service cloud.firestore {
     match /volnotes/{id} {
       allow read, write: if manager();
     }
+    // Points and rewards: everyone on the crew can see them, only managers give or use them
+    match /credits/{id} {
+      allow read: if member();
+      allow write: if manager();
+    }
+    match /rewards/{id} {
+      allow read: if member();
+      allow write: if manager();
+    }
+    match /settings/vols {
+      allow read: if member();
+      allow write: if manager();
+    }
     // Everything else on the board: crew only
     match /{col}/{rest=**} {
-      allow read, write: if member() && !(col in ['access', 'requests', 'vols', 'volnotes']);
+      allow read, write: if member() && !(col in ['access', 'requests', 'vols', 'volnotes', 'credits', 'rewards']);
     }
   }
 }

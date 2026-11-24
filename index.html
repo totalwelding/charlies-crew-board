@@ -160,6 +160,7 @@ table.st th{font-size:13px;color:var(--muted)}
 .mform{display:grid;grid-template-columns:minmax(0,2fr) auto auto;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px}.mform textarea,.mform #mNote{grid-column:1/-1}.mform button{grid-column:1/-1;justify-self:start}
 @media(max-width:600px){.mform{grid-template-columns:minmax(0,1fr)}}
 .fx{display:flex;gap:8px;align-items:center;flex-wrap:wrap;border-top:1px solid var(--line);padding:8px 0}.fx:first-child{border-top:0}.fx div{flex:1 1 200px}.fx small{display:block;color:var(--muted);font-size:13px}
+.tbl{width:100%;border-collapse:collapse;font-size:14px}.tbl th,.tbl td{padding:6px 6px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}.tbl th{font-size:12px;color:var(--muted)}
 .vform{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px}.vform .full{grid-column:1/-1}.vform label{font-size:13px;font-weight:700;color:var(--muted);display:flex;flex-direction:column;gap:4px}
 @media(max-width:600px){.vform{grid-template-columns:minmax(0,1fr)}}
 .vc{background:var(--card);border:1px solid var(--line);border-left:6px solid var(--vcol,#a39e8a);border-radius:14px;padding:12px;margin-bottom:10px}.vc h3{margin:0;font:600 18px Fredoka,sans-serif}.vc small{color:var(--muted)}.vc .vn{border-top:1px dashed var(--line);margin-top:8px;padding-top:6px;font-size:14px}.vc .vn p{margin:4px 0}
@@ -206,6 +207,7 @@ table.st th{font-size:13px;color:var(--muted)}
 <div class="tabname" id="tabName">Today's board</div>
 <main>
  <section id="v-board">
+  <div class="share" id="myPts" hidden style="border-color:var(--ok)"></div>
   <div class="share" id="phoneBox" style="border-color:var(--teal2)"></div>
   <div class="share" id="share"></div>
   <div class="score" id="score"></div>
@@ -262,6 +264,9 @@ table.st th{font-size:13px;color:var(--muted)}
   <div class="mgrid" id="vGrid"></div>
   <section class="hand" id="vDayBox" style="margin-top:14px"></section>
   <section class="hand"><h2>Manager notes</h2><p class="note" style="margin:0 0 8px">General notes about volunteers: what's working, who needs a chat, what we need more of.</p><div id="vNotes"><p class="note" style="margin:0">No notes yet.</p></div><form id="addVNote" style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;margin-top:8px"><textarea id="vNoteTxt" rows="2" placeholder="e.g. Need 2 more for December, someone good on the bar" aria-label="Manager note"></textarea><button class="b go" type="submit">Post</button></form></section>
+  <section class="hand"><h2>Points &amp; rewards</h2><p class="note" style="margin:0 0 8px" id="vRules"></p><div id="vFree"></div><div class="scroll"><table class="tbl" id="vPts"></table></div>
+   <details style="margin-top:10px"><summary style="cursor:pointer;font-weight:700">Change the numbers</summary>
+    <form id="vSet" class="vform" style="margin-top:8px"><label>Paying guests per free bed<input id="sPer" type="number" min="1" step="1"></label><label>Points for a free night<input id="sNight" type="number" min="1" step="1"></label><label>Free nights for a free adventure<input id="sTrip" type="number" min="1" step="1"></label><label>Jobs one person can hold at once<input id="sHold" type="number" min="1" step="1"></label><label>Points: reception/bar shift<input id="sPshift" type="number" min="0" step="1"></label><label>Points: cleaning job<input id="sPclean" type="number" min="0" step="1"></label><label>Points: social job<input id="sPsocial" type="number" min="0" step="1"></label><label>Points: other job<input id="sPother" type="number" min="0" step="1"></label><div class="btns full"><button class="b go" type="submit">Save numbers</button></div></form></details></section>
   <div class="filters" id="vFilt"></div>
   <div id="vList"></div>
   <h2 style="margin:22px 0 8px;font-size:20px" id="vFormH">Add a volunteer</h2>
@@ -345,7 +350,8 @@ function jobCard(id,j){
   if(!mine)b.push(`<button type="button" class="b sun" data-a="grab" data-id="${id}">I'll do one</button>`);
   if(mine&&md&&!(j.photos||{})[me])b.push(`<button type="button" class="b" data-a="photo" data-id="${id}">Add a photo</button>`);
   if(mine&&!md)b.push(`<button type="button" class="b ok" data-a="photo" data-id="${id}">Done, add proof</button>`,`<button type="button" class="b" data-a="done" data-id="${id}">Done</button>`,`<button type="button" class="b" data-a="drop" data-id="${id}">Let it go</button>`);
-  return `<article class="card${o.length?"":" open"}"><div class="t">${j.time?`<span class="time">${esc(fmtT(j.time))}</span>`:""}${esc(j.title)}<span class="cat ${esc(catOf(j))}">${CATN[catOf(j)]}</span></div>${j.note?`<p class="d">${esc(j.note)}</p>`:""}<div class="who${mine?" mine":""}">${o.length?"On it: "+o.map(n=>esc(n)+(dn.includes(n)?" ✓":"")).join(", "):"Everyone can grab this one"}</div>${(j.photos&&Object.keys(j.photos).length)?`<div class="posts">${Object.entries(j.photos).map(([n,p])=>`<div class="post"><img src="${esc(p)}" alt="Proof from ${esc(n)}">${esc(n)} ${keepBtn("jobm|"+id+"|"+n)}</div>`).join("")}</div>`:""}${b.length?`<div class="btns">${b.join("")}</div>`:""}</article>`}
+  if(isMgr())dn.filter(n=>!(j.checkedPeople||[]).includes(n)).forEach(n=>b.push(`<button type="button" class="b ok" data-a="checkp" data-id="${id}" data-p="${esc(n)}">Check ${esc(n)} ✓</button>`));
+  return `<article class="card${o.length?"":" open"}"><div class="t">${j.time?`<span class="time">${esc(fmtT(j.time))}</span>`:""}${esc(j.title)}<span class="cat ${esc(catOf(j))}">${CATN[catOf(j)]}</span><span class="cat" title="Points when checked">${ptsOf(j)} pt${ptsOf(j)>1?"s":""}</span></div>${j.note?`<p class="d">${esc(j.note)}</p>`:""}<div class="who${mine?" mine":""}">${o.length?"On it: "+o.map(n=>esc(n)+(dn.includes(n)?" ✓":"")).join(", "):"Everyone can grab this one"}</div>${(j.photos&&Object.keys(j.photos).length)?`<div class="posts">${Object.entries(j.photos).map(([n,p])=>`<div class="post"><img src="${esc(p)}" alt="Proof from ${esc(n)}">${esc(n)} ${keepBtn("jobm|"+id+"|"+n)}</div>`).join("")}</div>`:""}${b.length?`<div class="btns">${b.join("")}</div>`:""}</article>`}
  const mine=j.owner&&j.owner===me;
  let who=j.owner?`<span class="who${mine?" mine":""}">${mine?"You've got this":esc(j.owner)+" has this"}</span>`:`<span class="who" style="color:var(--coral)">Up for grabs</span>`;
  let b=[];
@@ -356,7 +362,7 @@ function jobCard(id,j){
  let st=j.checked?`<span class="chk">✓ Checked by ${esc(j.checkedBy)}</span>`:j.done?`<span class="chk" style="color:var(--muted)">Done by ${esc(j.doneBy)}, waiting for a check</span>`:"";
  let talk="";
  if(rec){const u=upcoming().slice(0,4);talk=u.length?`<div class="talk"><b>Chat to guests about</b><ul>${u.map(e=>`<li>${esc(fmtDate(e.date))}${e.time?" "+esc(fmtT(e.time)):""}: ${esc(e.title)}</li>`).join("")}</ul></div>`:""}
- return `<article class="card${rec?" rec":""}${!j.owner&&!j.done?" open":""}${j.done?" done":""}"><div class="t">${j.time?`<span class="time">${esc(fmtT(j.time))}</span>`:""}${esc(j.title)}<span class="cat ${esc(catOf(j))}">${CATN[catOf(j)]}</span></div>${j.note?`<p class="d">${esc(j.note)}</p>`:""}${talk}${j.redo?`<p class="d" style="color:var(--coral)">Needs another go${j.redoBy?" ("+esc(j.redoBy)+")":""}</p>`:""}${j.photo?`<img class="ph" src="${esc(j.photo)}" alt="Photo of ${esc(j.title)} when done">${keepBtn("job|"+id)}`:""}<div>${who}</div>${st}${b.length?`<div class="btns">${b.join("")}</div>`:""}</article>`;
+ return `<article class="card${rec?" rec":""}${!j.owner&&!j.done?" open":""}${j.done?" done":""}"><div class="t">${j.time?`<span class="time">${esc(fmtT(j.time))}</span>`:""}${esc(j.title)}<span class="cat ${esc(catOf(j))}">${CATN[catOf(j)]}</span><span class="cat" title="Points when checked">${ptsOf(j)} pt${ptsOf(j)>1?"s":""}</span></div>${j.note?`<p class="d">${esc(j.note)}</p>`:""}${talk}${j.redo?`<p class="d" style="color:var(--coral)">Needs another go${j.redoBy?" ("+esc(j.redoBy)+")":""}</p>`:""}${j.photo?`<img class="ph" src="${esc(j.photo)}" alt="Photo of ${esc(j.title)} when done">${keepBtn("job|"+id)}`:""}<div>${who}</div>${st}${b.length?`<div class="btns">${b.join("")}</div>`:""}</article>`;
 }
 function render(){try{volTabUI()}catch(e){}
  const list=Object.entries(JOBS).sort((a,b)=>mins(a[1].time)-mins(b[1].time)||(a[1].order??99)-(b[1].order??99));
@@ -427,7 +433,7 @@ let VOLS={},VNOTES=[],vMoOff=0,vSel=TODAY,vFilter="active";
 const VSN={applied:"Applied",talking:"Talking",confirmed:"Confirmed",here:"Here now",left:"Left",no:"Not a fit"};
 function volTabUI(){const t=$("volTab");if(!t)return;t.hidden=!isMgr();if(!isMgr()&&!$("v-vols").hidden){const b=document.querySelector('.tabs [data-tab="board"]');if(b)b.click()}}
 function volsOn(k){return Object.entries(VOLS).map(([id,v])=>({id,...v})).filter(v=>v.from&&!["no","left"].includes(v.status)&&v.from<=k&&(v.to?v.to>=k:v.from===k))}
-function renderVols(){volTabUI();if(!$("vGrid")||!isMgr())return;
+function renderVols(){volTabUI();if(!$("vGrid")||!isMgr())return;renderRewards();
  const base=new Date();base.setDate(1);base.setHours(12,0,0,0);base.setMonth(base.getMonth()+vMoOff);const mo=base.getMonth();
  $("vMoLbl").textContent=base.toLocaleDateString("en-AU",{month:"long",year:"numeric"});
  const start=new Date(base);start.setDate(1-((base.getDay()+6)%7));
@@ -443,6 +449,24 @@ function renderVols(){volTabUI();if(!$("vGrid")||!isMgr())return;
  const list=Object.entries(VOLS).map(([id,v])=>({id,...v})).filter(v=>vFilter==="all"||(vFilter==="active"?!["left","no"].includes(v.status):vFilter==="past"?["left","no"].includes(v.status):v.status===vFilter)).sort((a,b)=>(a.from||"9999").localeCompare(b.from||"9999"));
  $("vList").innerHTML=list.length?list.map(v=>`<div class="vc vs-${esc(v.status)}"><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:baseline"><h3>${esc(v.name)}</h3><b>${VSN[v.status]||""}</b></div><small>${fmtRange(v)}${v.country?" · "+esc(v.country):""}${v.source?" · via "+esc(v.source):""}</small>${v.skills?`<div style="margin-top:4px">${esc(v.skills)}</div>`:""}${v.contact?`<div><small>${esc(v.contact)}</small></div>`:""}${(v.notes||[]).length?`<div class="vn">${v.notes.map(n=>`<p>${esc(n.t)} <small>· ${esc(n.by||"")} ${esc((n.at||"").slice(0,10))}</small></p>`).join("")}</div>`:""}<div class="btns" style="margin-top:8px"><button class="b" type="button" data-vedit="${esc(v.id)}">Edit / add note</button>${v.status!=="here"&&!["left","no"].includes(v.status)?`<button class="b" type="button" data-vset="${esc(v.id)}|here">Arrived</button>`:""}${v.status==="here"?`<button class="b" type="button" data-vset="${esc(v.id)}|left">Left</button>`:""}</div></div>`).join(""):`<p class="note">Nobody here yet. Add someone below.</p>`;
 }
+const VDEF={bedsPer:4,ptsPerNight:10,nightsPerTrip:7,maxHold:2,pShift:3,pClean:2,pSocial:1,pOther:1};let VSET=Object.assign({},VDEF),CREDITS=[],REWARDS={},LASTBEDS=null;
+const MAXHOLD_=()=>VSET.maxHold||2;Object.defineProperty(window,"MAXHOLD",{get:MAXHOLD_});
+function ptsOf(j){if(j&&typeof j.pts==="number")return j.pts;const c=catOf(j);return c==="shift"?VSET.pShift:c==="clean"?VSET.pClean:c==="social"?VSET.pSocial:VSET.pOther}
+function heldBy(n){return Object.values(JOBS).filter(j=>j.multi?((j.owners||[]).includes(n)&&!(j.doneBy||[]).includes(n)):(j.owner===n&&!j.done)).length}
+const credId=(jid,p)=>(TODAY+"_"+jid+"_"+p).replace(/[^A-Za-z0-9_-]/g,"-");
+async function giveCredit(jid,j,p){try{await db.doc("credits/"+credId(jid,p)).set({person:p,date:TODAY,job:jid,title:j.title||"",cat:catOf(j),pts:ptsOf(j),by:me||"",at:new Date().toISOString()});status(`${ptsOf(j)} point${ptsOf(j)>1?"s":""} to ${p} ✓`)}catch(e){status("Checked, but points didn't save (managers only).")}}
+function tally(){const T={};CREDITS.forEach(c=>{const t=T[c.person]=T[c.person]||{pts:0,jobs:0};t.pts+=c.pts||0;t.jobs++});Object.keys(REWARDS).forEach(n=>{T[n]=T[n]||{pts:0,jobs:0}});Object.entries(T).forEach(([n,t])=>{const r=REWARDS[n]||{};t.nights=Math.floor(t.pts/VSET.ptsPerNight);t.usedN=r.usedNights||0;t.trips=Math.floor(t.nights/VSET.nightsPerTrip);t.usedT=r.usedTrips||0;t.toNext=VSET.ptsPerNight-(t.pts%VSET.ptsPerNight)});return T}
+function renderMyPts(){const box=$("myPts");if(!box)return;if(!me){box.hidden=true;return}const t=tally()[me];if(!t){box.hidden=false;box.innerHTML=`<div><b>Your rewards</b><br><small>Grab a job, get it checked by a manager and earn points: ${VSET.ptsPerNight} points = a free night, ${VSET.nightsPerTrip} free nights = a free adventure.</small></div>`;return}
+ box.hidden=false;box.innerHTML=`<div><b>Your rewards: ${t.pts} points</b><br><small>${t.nights-t.usedN} free night${t.nights-t.usedN===1?"":"s"} to use · ${t.trips-t.usedT} free adventure${t.trips-t.usedT===1?"":"s"} to use · ${t.toNext} more point${t.toNext===1?"":"s"} to your next free night</small></div>`}
+function renderRewards(){if(!$("vPts"))return;
+ $("vRules").textContent=`Jobs earn points once a manager checks them (shift ${VSET.pShift}, cleaning ${VSET.pClean}, social ${VSET.pSocial}, other ${VSET.pOther}). ${VSET.ptsPerNight} points = 1 free night. ${VSET.nightsPerTrip} free nights = 1 free adventure. Each person can hold ${VSET.maxHold} jobs at a time.`;
+ const beds=LASTBEDS&&typeof LASTBEDS.beds==="number"?LASTBEDS.beds:null;
+ $("vFree").innerHTML=beds!==null?`<p style="margin:0 0 8px"><b>Free beds tonight: ${Math.floor(beds/VSET.bedsPer)}</b> <small>(${beds} paying guests${LASTBEDS.day!==TODAY?" on "+esc(LASTBEDS.day.slice(5)):""}, 1 free bed per ${VSET.bedsPer}). Give them to whoever has the most points; the rest pay and keep earning trips.</small></p>`:`<p class="note" style="margin:0 0 8px">Free beds tonight: waiting on today's paying-guest count from the scoreboard.</p>`;
+ const T=tally(),rows=Object.entries(T).sort((a,b)=>b[1].pts-a[1].pts);
+ $("vPts").innerHTML=rows.length?`<tr><th>Name</th><th>Points</th><th>Nights left</th><th>Trips left</th><th></th></tr>`+rows.map(([n,t])=>`<tr><td><b>${esc(n)}</b></td><td>${t.pts}</td><td>${t.nights-t.usedN} <small>of ${t.nights}</small></td><td>${t.trips-t.usedT} <small>of ${t.trips}</small></td><td><button class="b" type="button" data-use="n|${esc(n)}"${t.nights-t.usedN>0?"":" disabled"}>Use a night</button> <button class="b" type="button" data-use="t|${esc(n)}"${t.trips-t.usedT>0?"":" disabled"}>Use a trip</button></td></tr>`).join(""):`<tr><td class="note">No points yet. Points appear as managers check jobs off.</td></tr>`;
+ const f=document.activeElement&&document.activeElement.closest&&document.activeElement.closest("#vSet");if(!f){$("sPer").value=VSET.bedsPer;$("sNight").value=VSET.ptsPerNight;$("sTrip").value=VSET.nightsPerTrip;$("sHold").value=VSET.maxHold;$("sPshift").value=VSET.pShift;$("sPclean").value=VSET.pClean;$("sPsocial").value=VSET.pSocial;$("sPother").value=VSET.pOther}}
+document.addEventListener("click",async e=>{const u=e.target.closest("[data-use]");if(!u||!isMgr())return;const [k,n]=u.dataset.use.split("|");const r=Object.assign({usedNights:0,usedTrips:0},REWARDS[n]);if(k==="n")r.usedNights++;else r.usedTrips++;r.at=new Date().toISOString();r.by=me||"";try{await FDB.doc("rewards/"+n.replace(/\//g,"-")).set(r);status(k==="n"?`Free night used by ${n}`:`Free adventure used by ${n}`)}catch(err){status("Couldn't save. Managers only.")}});
+$("vSet").addEventListener("submit",async e=>{e.preventDefault();if(!isMgr())return;const g=i=>Math.max(0,parseInt($(i).value,10)||0);const d={bedsPer:Math.max(1,g("sPer")),ptsPerNight:Math.max(1,g("sNight")),nightsPerTrip:Math.max(1,g("sTrip")),maxHold:Math.max(1,g("sHold")),pShift:g("sPshift"),pClean:g("sPclean"),pSocial:g("sPsocial"),pOther:g("sPother"),at:new Date().toISOString(),by:me||""};try{await FDB.doc("settings/vols").set(d);status("Numbers saved")}catch(err){status("Couldn't save. Managers only.")}});
 function fmtRange(v){const f=d=>d?new Date(d+"T12:00:00").toLocaleDateString("en-AU",{day:"numeric",month:"short",year:d.slice(0,4)!==TODAY.slice(0,4)?"numeric":undefined}):"";return v.from?(f(v.from)+(v.to?" – "+f(v.to):" onwards")):"Dates not set"}
 function vReset(){["vId","vName","vFrom","vTo","vCountry","vSource","vContact","vSkills","vNote"].forEach(i=>$(i).value="");$("vStatus").value="applied";$("vCancel").hidden=true;$("vFormH").textContent="Add a volunteer"}
 document.addEventListener("click",async e=>{
@@ -569,6 +593,8 @@ document.addEventListener("click",async e=>{
  const jref=db.doc(`days/${TODAY}/jobs/${id}`),now=new Date().toISOString();
  b.disabled=true;
  const J=JOBS[id];
+ if(a==="grab"&&!isMgr()&&heldBy(me)>=MAXHOLD){status(`You've got ${MAXHOLD} jobs on the go. Finish one and get it checked first.`,4000);b.disabled=false;return}
+ if(a==="checkp"&&J){const p=b.dataset.p,cp=(J.checkedPeople||[]).slice();if(!cp.includes(p))cp.push(p);if(await write(jref,"update",{checkedPeople:cp}))await giveCredit(id,J,p);b.disabled=false;return}
  if(J&&J.multi&&["grab","drop","done"].includes(a)){const o=(J.owners||[]).slice(),dn=(J.doneBy||[]).slice();
   if(a==="grab"&&!o.includes(me))o.push(me);
   if(a==="drop"){const i=o.indexOf(me);if(i>=0)o.splice(i,1)}
@@ -578,8 +604,8 @@ document.addEventListener("click",async e=>{
  if(a==="drop")await write(jref,"update",{owner:null});
  if(a==="done")await write(jref,"update",{done:true,doneBy:me,doneAt:now,redo:false});
  if(a==="photo"){photoFor=id;$("photoIn").value="";$("photoIn").click()}
- if(a==="check")await write(jref,"update",{checked:true,checkedBy:me});
- if(a==="redo")await write(jref,"update",{done:false,checked:false,redo:true,redoBy:me});
+ if(a==="check"){if(await write(jref,"update",{checked:true,checkedBy:me})&&J&&J.doneBy)await giveCredit(id,J,J.doneBy)}
+ if(a==="redo"){const wasBy=J&&J.doneBy;await write(jref,"update",{done:false,checked:false,redo:true,redoBy:me});if(wasBy&&J.checked){try{await db.doc("credits/"+credId(id,wasBy)).delete()}catch(e){}}}
  if(a==="going"){const ev=EVS[id];const g=(ev.going||[]).slice();const i=g.indexOf(me);i>=0?g.splice(i,1):g.push(me);await write(db.doc("coming/"+id),"update",{going:g})}
  if(a==="delev")await write(db.doc("coming/"+id),"delete");
  if(a==="keep"){const x=srcOf(id);if(!x||!x.src){status("Couldn't find that photo.");return}if(await write(db.collection("ads").doc("a"+Date.now().toString(36)),"set",{src:x.src,by:x.by||"",from:x.from||"",ref:id,savedBy:me||"",at:new Date().toISOString()}))status("Saved for ads ★");return}
@@ -659,6 +685,10 @@ function start(){
  const fail=e=>{clearTimeout(tmr);console.warn(e)};
  const on=(q,f)=>subs.push(q.onSnapshot(f,fail));
  if(isMgr())on(FDB.collection("requests"),s=>{REQS=s.docs.map(d=>Object.assign({id:d.id},d.data()));renderAccess()});
+ on(FDB.doc("settings/vols"),s=>{if(s.exists)VSET=Object.assign({},VDEF,s.data());renderVols();renderMyPts()});
+ on(FDB.collection("credits"),s=>{CREDITS=s.docs.map(d=>d.data());renderVols();renderMyPts()});
+ on(FDB.collection("rewards"),s=>{REWARDS={};s.docs.forEach(d=>REWARDS[d.id]=d.data());renderVols();renderMyPts()});
+ on(FDB.collection("stats").orderBy(firebase.firestore.FieldPath.documentId(),"desc").limit(3),s=>{s.docs.forEach(d=>{if(d.id===TODAY||!LASTBEDS)LASTBEDS={day:d.id,...d.data()}});renderVols()});
  if(isMgr()){on(FDB.collection("vols"),s=>{VOLS={};s.docs.forEach(d=>VOLS[d.id]=d.data());renderVols()});on(FDB.collection("volnotes").orderBy("at","desc").limit(30),s=>{VNOTES=s.docs.map(d=>Object.assign({id:d.id},d.data()));renderVols()})}
  volTabUI();
  on(db.doc("settings/crew"),s=>{if(s.exists){const d=s.data();CREW=Object.assign({},CREW,{beds:d.beds});if(!$("sTotal").value&&d.beds)$("sTotal").value=d.beds;render()}});
