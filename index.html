@@ -300,12 +300,14 @@ table.st th{font-size:13px;color:var(--muted)}
 <input type="file" id="photoIn" accept="image/*" capture="environment" hidden><input type="file" id="shotIn" accept="image/*" hidden><input type="file" id="evPhotoIn" accept="image/*" hidden><input type="file" id="profIn" accept="image/*" hidden>
 <div class="gate" id="gate"><div><img src="crew-logo.png" alt="Charlie's Crew" style="height:160px;width:auto;margin-bottom:10px"><h1>Charlie's Crew Board</h1><p id="gateMsg">Gladstone Backpackers crew only. Sign in with your Google account.</p><button type="button" class="gbtn" id="signIn">Sign in with Google</button><p id="gateOut" style="margin-top:16px;font-size:14px" hidden><a href="#" id="signOut2" style="color:#fff">Use a different account</a></p></div></div>
 <div class="status" id="status" role="status"></div>
+<div id="alertBar" hidden style="position:fixed;left:8px;right:8px;bottom:8px;z-index:70;background:#0f5f5a;color:#fff;border-radius:12px;padding:12px 14px;font:15px/1.35 system-ui;box-shadow:0 4px 18px rgba(0,0,0,.25)"></div>
 <div id="guestBar" hidden style="position:fixed;top:0;left:0;right:0;z-index:60;height:30px;box-sizing:border-box;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.3px;background:#ffe9a8;color:#3a2a00;text-align:center;font:600 14px system-ui;padding:6px 10px">👀 Guest view: look around. Nothing you tap changes anything. Use 💬 Feedback to suggest changes.</div>
 <button type="button" id="fbBtn" hidden style="position:fixed;right:14px;bottom:84px;z-index:61;border:0;border-radius:999px;padding:12px 16px;background:#1f6feb;color:#fff;font:600 15px system-ui;box-shadow:0 4px 14px #0004">💬 Feedback</button>
 <div id="fbBox" hidden style="position:fixed;inset:0;z-index:70;background:#0007;display:flex;align-items:flex-end;justify-content:center"><div style="background:var(--card,#fff);color:inherit;width:100%;max-width:520px;border-radius:16px 16px 0 0;padding:16px"><h2 style="margin:0 0 6px">Feedback / ideas</h2><p class="note" style="margin:0 0 8px">What's confusing, missing or could be better on this screen? Luke sees every note.</p><textarea id="fbText" rows="5" style="width:100%"></textarea><div class="btns" style="margin-top:8px"><button type="button" class="b go" id="fbSend">Send</button><button type="button" class="b" id="fbCancel">Cancel</button></div></div></div>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging-compat.js"></script>
 <script>
 {
 const SLOTS=[["morning","Morning","coffee, brekkie, check-outs"],["arvo","Arvo","hang out, movie, drinks"],["evening","Evening","check-ins 5–10pm, dinner"],["anytime","Anytime","whenever suits"]];
@@ -682,7 +684,7 @@ function applyAccess(){
  const names=Object.values(ACCESS).filter(x=>x.role!=="shared"&&x.role!=="guest").map(x=>x.name).filter(Boolean),mgrs=Object.values(ACCESS).filter(x=>x.role==="manager").map(x=>x.name);
  if(isOwner()){const n=(m&&m.name)||"Luke";if(!names.includes(n))names.unshift(n);if(!mgrs.includes(n))mgrs.push(n);me=n}else if(m&&m.role==="shared"){SHARED=true;let pick=null;try{pick=localStorage.getItem("sharedWho")}catch(e){}me=pick||null;if(!me){CREW=Object.assign({},CREW,{names:names.filter(n=>n!==m.name),managers:mgrs});pickWho();return}}else if(m&&m.role==="guest"){GUEST=true;me=m.name||"Guest"}else me=m?m.name:null;
  CREW=Object.assign({},CREW,{names:names.length?names:CREW.names,managers:mgrs});
- if(me){$("gate").hidden=true;$("meName").textContent="Hi "+me;$("meBtn").textContent=SHARED?"Switch person":"Sign out";start()}
+ if(me){setTimeout(checkAlerts,1500);$("gate").hidden=true;$("meName").textContent="Hi "+me;$("meBtn").textContent=SHARED?"Switch person":"Sign out";start()}
  else gate("Thanks "+((AUTHU.displayName||"").split(" ")[0]||"")+"! Luke needs to let you onto the crew. Once he does, this opens by itself.",true);
  renderAccess();render();
 }
@@ -752,6 +754,32 @@ function start(){
  on(db.collection("promo"),s=>{PROMO={};s.docs.forEach(d=>PROMO[d.id]=d.data());watchTalk();render()});
 }
 if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
+/* ---- Phone alerts: missed calls, reception phone on silent, phone not picked up ---- */
+let TOKSAVED=false;
+const VAPID="BKjvxK2zjABKq6cFVowzqKy8_mx4L2g1aFG3VexE18dYwgH8jb0Uye8Bc2n1CXqkWvevJ1wWc6TMP7PonJi34ZI";
+const isIOS=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+const isApp=matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
+const ALERT_WHAT="You'll get a buzz when a call to reception is missed, when the reception phone is put on silent, or when nobody has picked it up for an hour.";
+function alertBar(html){const b=$("alertBar");if(!html){b.hidden=true;return}b.innerHTML=html+'<button type="button" id="alertX" aria-label="Hide" style="float:right;margin-top:6px;background:none;border:0;color:#fff;font-size:13px;text-decoration:underline">Not now</button>';b.hidden=false}
+async function saveAlertToken(){
+ try{const reg=await navigator.serviceWorker.ready;const tok=await firebase.messaging().getToken({vapidKey:VAPID,serviceWorkerRegistration:reg});
+  if(tok&&AUTHU&&FDB){await FDB.doc("tokens/"+AUTHU.uid+"-"+tok.slice(-12)).set({token:tok,name:me||"",email:emailOf(AUTHU),ios:isIOS,at:new Date().toISOString()});return true}}catch(e){console.warn("alerts",e)}return false}
+async function checkAlerts(){
+ if(!AUTHU||!me||GUEST)return alertBar("");
+ let hid=0;try{hid=+localStorage.getItem("alertHide")||0}catch(e){}
+ const later=Date.now()-hid<3*864e5;
+ if(isIOS&&!isApp){if(!later)alertBar('<b>🔔 Get reception alerts on your iPhone</b><br>'+ALERT_WHAT+'<br><br>1. Tap the <b>Share</b> button (square with arrow) at the bottom of Safari.<br>2. Tap <b>Add to Home Screen</b>, then <b>Add</b>.<br>3. Open Crew Board from the new icon and tap <b>Turn on alerts</b>.');return}
+ if(!("Notification" in window)||!("serviceWorker" in navigator)||!firebase.messaging.isSupported())return alertBar("");
+ if(Notification.permission==="granted"){alertBar("");if(!TOKSAVED){TOKSAVED=true;saveAlertToken()}return}
+ if(Notification.permission==="denied"){if(!later)alertBar('<b>🔕 Alerts are blocked on this phone</b><br>'+ALERT_WHAT+'<br><br>To turn them on: open this phone\'s Settings → Apps → '+(isApp?'Crew Board':'Chrome')+' → Notifications → Allow. Then reopen the board.');return}
+ if(!later)alertBar('<b>🔔 Turn on reception alerts</b><br>'+ALERT_WHAT+'<br><button type="button" id="alertOn" class="gbtn" style="margin-top:8px;background:#fff;color:#0f5f5a;border:0;border-radius:8px;padding:8px 14px;font-weight:700">Turn on alerts</button>'+(isIOS?'':'<br><small>Tip: add Crew Board to your home screen too (browser menu → Add to Home screen).</small>'));
+}
+document.addEventListener("click",async e=>{
+ if(e.target.id==="alertX"){try{localStorage.setItem("alertHide",Date.now())}catch(err){}alertBar("");return}
+ if(e.target.id==="alertOn"){const p=await Notification.requestPermission();if(p==="granted"){const ok=await saveAlertToken();alertBar("");status(ok?"Alerts are on ✓":"Alerts allowed, but couldn't finish setting up. Reopen the board.",3500)}else checkAlerts()}
+});
+try{firebase.messaging().onMessage(p=>{const n=(p&&p.notification)||{};status((n.title||"Alert")+(n.body?": "+n.body:""),8000)})}catch(e){}
+
 }
 </script>
 </body>
