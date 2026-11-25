@@ -706,11 +706,16 @@ document.addEventListener("click",async e=>{const b=e.target.closest("[data-acc]
  else{const m=Object.assign({},ACCESS);m[id]=Object.assign({},m[id],{role:a==="promote"?"manager":"crew"});await ref.set({members:m})}}catch(err){status("Couldn't change that. Only managers can.",4000)}});
 let IMP=null;$("importIn").addEventListener("change",async()=>{IMP=null;$("importGo").hidden=true;const f=$("importIn").files[0];if(!f)return;let d;try{d=JSON.parse(await f.text())}catch(e){$("importMsg").textContent="That file didn't open. Make sure it's crew-board-export.json from the old board.";return}const ent=Object.entries((d&&d.docs)||{});if(!ent.length){$("importMsg").textContent="That file has nothing in it. Download it again from the old board.";return}IMP=ent;$("importMsg").textContent=ent.length+" items ready to bring across.";$("importGo").hidden=false});
 $("importGo").addEventListener("click",async()=>{if(!IMP)return;const ent=IMP,b=$("importGo");b.disabled=true;$("importMsg").textContent="Bringing across…";let n=0,bad=0,err="";for(let i=0;i<ent.length;i+=100){const bt=FDB.batch();ent.slice(i,i+100).forEach(([p,v])=>bt.set(FDB.doc(p),v));try{await bt.commit();n+=Math.min(100,ent.length-i)}catch(e){bad++;err=e&&e.code||""}}b.disabled=false;$("importMsg").textContent=n?`Done: ${n} items brought across${bad?", but some didn't make it ("+err+")":""}. Check What's coming up.`:`It didn't work (${err||"unknown"}). Tell Claude this message.`;if(n){IMP=null;b.hidden=true}});
-firebase.auth().onAuthStateChanged(u=>{AUTHU=u;subs.forEach(f=>{try{f()}catch(e){}});subs=[];started=false;db=null;me=null;ACCESS={};REQS=[];TALKSUB={};GUEST=false;SHARED=false;fbUI();
+function boot(u){AUTHU=u;subs.forEach(f=>{try{f()}catch(e){}});subs=[];started=false;db=null;me=null;ACCESS={};REQS=[];TALKSUB={};GUEST=false;SHARED=false;fbUI();
  if(!u){gate("Gladstone Backpackers crew only. Sign in with your Google account.",false);return}
  gate("Checking you're on the crew…",false);$("signIn").hidden=true;
  subs.push(FDB.doc("access/members").onSnapshot(s=>{ACCESS=(s.exists&&s.data().members)||{};applyAccess()},e=>{if(isOwner()){ACCESS={};applyAccess()}else{FDB.doc("requests/"+u.uid).set({email:emailOf(u),name:u.displayName||"",at:new Date().toISOString()}).catch(()=>{});gate("Thanks "+((u.displayName||"").split(" ")[0]||"")+"! Luke needs to let you onto the crew. Ask him, then open this again.",true)}}));
-});
+}
+firebase.auth().onAuthStateChanged(boot);
+// Save Firebase reads: stop listening when the board has been in the background for 2 min, pick up again when it is opened.
+let PAUSED=false,hideT=null;
+document.addEventListener("visibilitychange",()=>{if(document.hidden){clearTimeout(hideT);hideT=setTimeout(()=>{if(!document.hidden||!AUTHU)return;subs.forEach(f=>{try{f()}catch(e){}});subs=[];started=false;TALKSUB={};PAUSED=true},120000)}else{clearTimeout(hideT);if(PAUSED){PAUSED=false;boot(AUTHU)}}});
+
 function start(){
  if(started){renderAccess();return}started=true;db=FDB;
  const tmr=setTimeout(()=>{if(!gotJobs)$("progTxt").textContent="Can't reach the board yet. Check your connection."},10000);
@@ -730,7 +735,7 @@ function start(){
  on(db.collection("notes").orderBy("at","desc").limit(20),s=>{NOTES=s.docs.map(d=>d.data());render()});
  on(db.collection("handles"),s=>{HANDLES={};s.docs.forEach(d=>{const x=d.data();if(x.name)HANDLES[x.name]=x});render()});
  on(db.collection("posts").orderBy("at","desc").limit(30),s=>{POSTS=s.docs.map(d=>d.data());render()});
- on(db.collection("stats"),s=>{STATS={};s.docs.forEach(d=>STATS[d.id]=d.data());if(!statDirty)fillStat();render()});
+ on(db.collection("stats").orderBy(firebase.firestore.FieldPath.documentId(),"desc").limit(120),s=>{STATS={};s.docs.forEach(d=>STATS[d.id]=d.data());if(!statDirty)fillStat();render()});
  on(db.collection("coming"),s=>{EVS={};s.docs.forEach(d=>EVS[d.id]=d.data());watchTalk();render()});
  on(db.collection("ads"),s=>{ADS={};s.docs.forEach(d=>ADS[d.id]=d.data());render()});
  on(db.doc("settings/reviews"),s=>{REVS=s.exists?s.data():{};render()});
@@ -738,7 +743,7 @@ function start(){
  on(db.doc("settings/social"),s=>{SOC=s.exists?s.data():{};render()});
  on(db.collection("reviews").orderBy("date","desc").limit(40),s=>{RFEED=s.docs.map(d=>Object.assign({id:d.id},d.data()));render()});
  on(db.doc("settings/phone"),s=>{PHONE=s.exists?s.data():{};render()});
- on(db.collection("phonelog").orderBy("at","desc").limit(300),s=>{PLOG=s.docs.map(d=>d.data()).reverse();CALLS=CRAW.map(normCall);render()});
+ on(db.collection("phonelog").orderBy("at","desc").limit(150),s=>{PLOG=s.docs.map(d=>d.data()).reverse();CALLS=CRAW.map(normCall);render()});
  on(db.collection("calls").limit(300),s=>{CRAW=s.docs.map(d=>d.data());CALLS=CRAW.map(normCall).filter(c=>c.at).sort((a,b)=>b.at.localeCompare(a.at));render()});
  on(db.collection("maint"),s=>{MT={};s.docs.forEach(d=>MT[d.id]=d.data());render()});
  on(db.collection("maintdone").where(firebase.firestore.FieldPath.documentId(),">=",dkey(new Date(Date.now()-60*864e5))),s=>{MD={};s.docs.forEach(d=>MD[d.id]=d.data());render()});
