@@ -12,6 +12,9 @@ service cloud.firestore {
     function member() {
       return request.auth != null && (owner() || email() in members());
     }
+    function guest() {
+      return !owner() && member() && members()[email()].role == 'guest';
+    }
     function manager() {
       return owner() || (member() && members()[email()].role == 'manager');
     }
@@ -20,6 +23,12 @@ service cloud.firestore {
     match /access/members {
       allow read: if member();
       allow write: if manager();
+    }
+    // Phone call log from the reception phone (live rule holds the real key; not kept in the repo)
+    match /calls/{id} {
+      allow create: if request.resource.data.key == 'SET_IN_CONSOLE'
+        && request.resource.data.keys().hasOnly(['status','number','t','key'])
+        && request.resource.data.status in ['answered','missed'];
     }
     // People asking to join: they write their own request, managers see and clear them
     match /requests/{uid} {
@@ -46,9 +55,15 @@ service cloud.firestore {
       allow read: if member();
       allow write: if manager();
     }
-    // Everything else on the board: crew only
+    // Feedback: anyone on the crew (guests too) can send it, managers read and clear it
+    match /feedback/{id} {
+      allow create: if member();
+      allow read, delete: if manager();
+    }
+    // Everything else on the board: crew read and write, guests read only
     match /{col}/{rest=**} {
-      allow read, write: if member() && !(col in ['access', 'requests', 'vols', 'volnotes', 'credits', 'rewards']);
+      allow read: if member() && !(col in ['access', 'requests', 'vols', 'volnotes', 'credits', 'rewards', 'feedback']);
+      allow write: if member() && !guest() && !(col in ['access', 'requests', 'vols', 'volnotes', 'credits', 'rewards', 'feedback']);
     }
   }
 }
